@@ -45,6 +45,28 @@ span[data-baseweb="tag"] {{
     background-color: {TEAL} !important; border-radius: 20px !important;
     color: #1a1a2e !important; font-size: 0.78rem !important; font-weight: 600 !important;
 }}
+/* Pill-shaped radio buttons */
+div[data-testid="stRadio"] > div {{
+    display: flex; flex-direction: column; gap: 6px;
+}}
+div[data-testid="stRadio"] label {{
+    background: #f0f2f6;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 20px !important;
+    padding: 6px 16px !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}}
+div[data-testid="stRadio"] label:has(input:checked) {{
+    background: {TEAL} !important;
+    border-color: {TEAL} !important;
+    color: #1a1a2e !important;
+}}
+div[data-testid="stRadio"] input {{ display: none !important; }}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
 .block-container {{ padding-top: 2rem !important; }}
@@ -102,19 +124,16 @@ with st.sidebar:
     all_devices = sorted(df_raw["DeviceID"].unique())
     selected_devices = st.multiselect("Team (DeviceID)", all_devices, default=all_devices)
     st.markdown("**Date Range**")
-    unit = st.radio("Unit", ["Days", "Weeks", "Months"], horizontal=True)
-    if unit == "Days":
-        amount = st.number_input("Amount", min_value=1, max_value=365, value=7)
-        delta = timedelta(days=amount - 1)
-        period_label = f"Last {amount} Day{'s' if amount != 1 else ''}"
-    elif unit == "Weeks":
-        amount = st.number_input("Amount", min_value=1, max_value=52, value=1)
-        delta = timedelta(weeks=amount)
-        period_label = f"Last {amount} Week{'s' if amount != 1 else ''}"
-    else:
-        amount = st.number_input("Amount", min_value=1, max_value=24, value=1)
-        delta = timedelta(days=amount * 30)
-        period_label = f"Last {amount} Month{'s' if amount != 1 else ''}"
+    period_options = ["7 Days", "14 Days", "30 Days", "3 Months", "6 Months"]
+    selected_period = st.radio("", period_options, index=0, horizontal=False)
+    period_map = {
+        "7 Days":   (timedelta(days=6),   "Last 7 Days"),
+        "14 Days":  (timedelta(days=13),  "Last 14 Days"),
+        "30 Days":  (timedelta(days=29),  "Last 30 Days"),
+        "3 Months": (timedelta(days=89),  "Last 3 Months"),
+        "6 Months": (timedelta(days=179), "Last 6 Months"),
+    }
+    delta, period_label = period_map[selected_period]
     max_date = df_raw["event_time"].max().date()
     start_date = max_date - delta
     end_date = max_date
