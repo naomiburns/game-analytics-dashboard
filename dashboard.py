@@ -5,13 +5,31 @@ import plotly.graph_objects as go
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
-st.set_page_config(page_title="Team Roster Analytics", layout="wide")
+st.set_page_config(page_title="Ver Vision Training Dashboard", layout="wide")
 
 CORAL   = "#FF6F59"
 SLATE   = "#696D7D"
 POLLEN  = "#FFD166"
 TEAL    = "#41EAD4"
-PALETTE = [CORAL, TEAL, POLLEN, SLATE, "#A78BFA", "#F97316", "#38BDF8", "#FB7185"]
+PALETTE = [CORAL, TEAL, POLLEN, SLATE, "#A78BFA", "#F97316", "#38BDF8", "#FB7185",
+           "#34D399", "#F472B6", "#60A5FA", "#FBBF24"]
+
+# 12 dummy names for profiles 1-12
+PROFILE_NAMES = {
+    1:  "Jane",
+    2:  "Jill",
+    3:  "Sophie",
+    4:  "Ellie",
+    5:  "Alex",
+    6:  "Maya",
+    7:  "Zoe",
+    8:  "Ava",
+    9:  "Mia",
+    10: "Lily",
+    11: "Grace",
+    12: "Chloe",
+}
+TOTAL_PROFILES = 12
 
 st.markdown(f"""
 <style>
@@ -46,57 +64,41 @@ span[data-baseweb="tag"] {{
     background-color: {TEAL} !important; border-radius: 20px !important;
     color: #1a1a2e !important; font-size: 0.78rem !important; font-weight: 600 !important;
 }}
-/* Pill radio buttons */
 div[data-testid="stRadio"] > div {{ display: flex; flex-direction: column; gap: 6px; }}
 div[data-testid="stRadio"] label {{
     background: rgba(65,234,212,0.08) !important;
     border: 1.5px solid rgba(65,234,212,0.35) !important;
-    border-radius: 20px !important;
-    padding: 7px 18px !important;
+    border-radius: 20px !important; padding: 7px 18px !important;
     font-size: 0.85rem !important; font-weight: 600 !important;
     color: #1a1a2e !important; cursor: pointer;
     text-transform: none !important; letter-spacing: 0 !important;
 }}
 div[data-testid="stRadio"] label:has(input:checked) {{
-    background: rgba(65,234,212,0.25) !important;
-    border-color: {TEAL} !important;
+    background: rgba(65,234,212,0.25) !important; border-color: {TEAL} !important;
 }}
 div[data-testid="stRadio"] input {{ accent-color: {TEAL} !important; }}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
-/* Dataframe rounded corners */
 [data-testid="stDataFrame"] {{ border-radius: 12px !important; overflow: hidden !important; }}
 [data-testid="stDataFrame"] > div {{ border-radius: 12px !important; }}
-/* Chart containers */
 .stPlotlyChart {{
     border-radius: 16px !important;
     border: 1px solid #e4e5ea !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
     overflow: hidden !important;
 }}
-.stPlotlyChart > div {{
-    overflow: hidden !important;
-    border-radius: 16px !important;
-}}
-.stPlotlyChart iframe {{
-    display: block !important;
-    border-radius: 16px !important;
-}}
-/* White containers for table and session history */
+.stPlotlyChart > div {{ overflow: hidden !important; border-radius: 16px !important; }}
+.stPlotlyChart iframe {{ display: block !important; border-radius: 16px !important; }}
 [data-testid="stVerticalBlockBorderWrapper"] {{
-    background: #ffffff !important;
-    border-radius: 16px !important;
+    background: #ffffff !important; border-radius: 16px !important;
     border: none !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
 }}
 [data-testid="stVerticalBlockBorderWrapper"] > div,
 [data-testid="stVerticalBlockBorderWrapper"] > div > div {{
-    background: #ffffff !important;
-    border-radius: 16px !important;
+    background: #ffffff !important; border-radius: 16px !important;
 }}
 </style>
 """, unsafe_allow_html=True)
-
-DUMMY_NAMES = ["Jane", "Jill", "Sophie", "Ellie", "Alex", "Maya", "Zoe", "Ava"]
 
 @st.cache_data(ttl=60)
 def load_data():
@@ -113,24 +115,21 @@ def load_data():
                 "StationID":  cf.get("StationID", "Unknown"),
                 "DeviceID":   cf.get("DeviceID", "Unknown"),
                 "Time":       cf.get("Time"),
-                "Profile":    cf.get("Profile"),
+                "ProfileNum": int(cf.get("Profile", 0)),
             })
     df = pd.DataFrame(results)
     if df.empty:
         return df
-    station_ids = sorted(df["StationID"].unique())
-    name_map = {sid: DUMMY_NAMES[i % len(DUMMY_NAMES)] for i, sid in enumerate(station_ids)}
-    df["Athlete"] = df["StationID"].map(name_map)
+    df["Athlete"] = df["ProfileNum"].map(lambda x: PROFILE_NAMES.get(x, f"Athlete {x}"))
     return df
 
 df_raw = load_data()
 
 CARD = "background:#ffffff;border-radius:16px;padding:28px 32px 20px 32px;box-shadow:0 1px 4px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.04);margin-bottom:20px;"
 
-# ── Header ────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div style="{CARD}">
-    <div style="font-size:2.3rem;font-weight:700;color:#1a1a2e;letter-spacing:-0.03em;">Team Roster Dashboard</div>
+    <div style="font-size:2.3rem;font-weight:700;color:#1a1a2e;letter-spacing:-0.03em;">Ver Vision Training Dashboard</div>
     <div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Your athletes are logging vision training reps through the Ver app. Monitor who's showing up, how often, and whether their reaction times are improving — the same way you'd track any other training metric.</div>
 </div>
 """, unsafe_allow_html=True)
@@ -139,7 +138,6 @@ if df_raw.empty:
     st.warning("No Results events found in live_events.json.")
     st.stop()
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("Customize View")
     all_devices = sorted(df_raw["DeviceID"].unique())
@@ -159,7 +157,6 @@ with st.sidebar:
     start_date = max_date - delta
     end_date = max_date
 
-# ── Filter ────────────────────────────────────────────────────────────────────
 df = df_raw[
     (df_raw["DeviceID"].isin(selected_devices)) &
     (df_raw["event_time"].dt.date >= start_date) &
@@ -170,32 +167,55 @@ if df.empty:
     st.info("No data for the selected filters.")
     st.stop()
 
-# ── Build roster ──────────────────────────────────────────────────────────────
+# ── Build full roster (all 12 profiles) ──────────────────────────────────────
 rows = []
-for athlete in sorted(df["Athlete"].unique()):
-    adf = df[df["Athlete"] == athlete].sort_values("event_time")
+active_profiles = df["ProfileNum"].unique() if not df.empty else []
+
+for profile_num in range(1, TOTAL_PROFILES + 1):
+    athlete = PROFILE_NAMES.get(profile_num, f"Athlete {profile_num}")
+    adf = df[df["ProfileNum"] == profile_num].sort_values("event_time")
     times = adf["Time"].values
     sessions = len(times)
-    avg_t, best_t, worst_t = float(times.mean()), float(times.min()), float(times.max())
-    station = adf["StationID"].iloc[0]
-    profile_num = station.split("_")[-1] if "_" in station else station
-    if sessions >= 2:
-        mid = sessions // 2
-        trend = round(float(times[mid:].mean()) - float(times[:mid].mean()), 2)
+
+    if sessions > 0:
+        avg_t   = float(times.mean())
+        best_t  = float(times.min())
+        worst_t = float(times.max())
+        if sessions >= 2:
+            mid   = sessions // 2
+            trend = round(float(times[mid:].mean()) - float(times[:mid].mean()), 2)
+        else:
+            trend = 0.0
+        trend_display = "↑ 0.00" if sessions < 2 else (f"↓ {abs(trend):.2f}" if trend < 0 else f"↑ {abs(trend):.2f}")
+        avg_str   = f"{avg_t:.2f}"
+        best_str  = f"{best_t:.2f}"
+        worst_str = f"{worst_t:.2f}"
     else:
-        trend = 0.0
-    trend_display = "↑ 0.00" if sessions < 2 else (f"↓ {abs(trend):.2f}" if trend < 0 else f"↑ {abs(trend):.2f}")
+        avg_t = best_t = worst_t = trend = 0.0
+        trend_display = "—"
+        avg_str = best_str = worst_str = "—"
+
     rows.append({
-        "Athlete": athlete, "StationID": station, "Profile": profile_num, "Sessions": sessions,
-        "Avg Time": f"{avg_t:.2f}", "Best Time": f"{best_t:.2f}", "Worst Time": f"{worst_t:.2f}",
-        "Trend": trend_display,
-        "_avg": avg_t, "_best": best_t, "_trend": trend, "_sessions": sessions,
+        "Athlete":    athlete,
+        "Profile":    str(profile_num),
+        "_profile_num": profile_num,
+        "Sessions":   sessions,
+        "Avg Time":   avg_str,
+        "Best Time":  best_str,
+        "Worst Time": worst_str,
+        "Trend":      trend_display,
+        "_avg":       avg_t,
+        "_best":      best_t,
+        "_trend":     trend,
+        "_sessions":  sessions,
     })
+
 roster_df = pd.DataFrame(rows)
+active_roster = roster_df[roster_df["_sessions"] > 0]
 
 # ── KPIs ──────────────────────────────────────────────────────────────────────
-fastest_row = roster_df.loc[roster_df["_best"].idxmin()]
-has_trend   = roster_df[roster_df["_sessions"] >= 2]
+fastest_row = active_roster.loc[active_roster["_best"].idxmin()] if not active_roster.empty else None
+has_trend   = active_roster[active_roster["_sessions"] >= 2]
 if not has_trend.empty:
     best_imp  = has_trend.loc[has_trend["_trend"].idxmin()]
     imp_name  = best_imp["Athlete"]
@@ -206,20 +226,21 @@ else:
 st.markdown(f'<div style="font-size:1.1rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;">{period_label}</div>', unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("Total Sessions",  len(df))
-k2.metric("Athletes Active", df["Athlete"].nunique())
-k3.metric("Fastest Time",    f"{fastest_row['_best']:.2f}s", delta=fastest_row["Athlete"], delta_color="off")
-k4.metric("Most Gains",   imp_name, delta=imp_delta, delta_color="inverse")
+k2.metric("Athletes Active", len(active_roster))
+k3.metric("Fastest Time",    f"{fastest_row['_best']:.2f}s" if fastest_row is not None else "—",
+          delta=fastest_row["Athlete"] if fastest_row is not None else None, delta_color="off")
+k4.metric("Most Gains", imp_name, delta=imp_delta, delta_color="inverse")
 
 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
 # ── Charts ────────────────────────────────────────────────────────────────────
-athlete_order = roster_df.sort_values("_avg")["Athlete"].tolist()
-color_map = {a: PALETTE[i % len(PALETTE)] for i, a in enumerate(sorted(df["Athlete"].unique()))}
+athlete_order = active_roster.sort_values("_avg")["Athlete"].tolist()
+color_map = {PROFILE_NAMES[i]: PALETTE[(i-1) % len(PALETTE)] for i in range(1, TOTAL_PROFILES+1)}
 
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    bar_df = roster_df.sort_values("_avg", ascending=True)
+    bar_df = active_roster.sort_values("_avg", ascending=True)
     fig1 = go.Figure(go.Bar(
         x=bar_df["_avg"], y=bar_df["Athlete"], orientation="h",
         marker=dict(color=bar_df["_avg"], colorscale=[[0,TEAL],[0.5,POLLEN],[1,CORAL]], showscale=False),
@@ -229,7 +250,8 @@ with chart_col1:
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
         title=dict(text="Score Breakdown by Athlete", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
-        xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False, range=[0, roster_df["_avg"].max() * 1.25]),
+        xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False,
+                   range=[0, active_roster["_avg"].max() * 1.25] if not active_roster.empty else [0, 100]),
         yaxis=dict(title=""),
         margin=dict(l=10, r=120, t=70, b=10), height=380,
     )
@@ -238,7 +260,8 @@ with chart_col1:
 with chart_col2:
     fig2 = go.Figure()
     for athlete in athlete_order:
-        adf = df[df["Athlete"] == athlete].sort_values("event_time").reset_index(drop=True)
+        profile_num = next(k for k, v in PROFILE_NAMES.items() if v == athlete)
+        adf = df[df["ProfileNum"] == profile_num].sort_values("event_time").reset_index(drop=True)
         adf["session_num"] = range(1, len(adf) + 1)
         fig2.add_trace(go.Scatter(
             x=adf["session_num"], y=adf["Time"], mode="lines+markers", name=athlete,
@@ -258,7 +281,6 @@ with chart_col2:
     )
     st.plotly_chart(fig2, use_container_width=True, config={"scrollZoom": False, "displayModeBar": False})
 
-
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
 # ── Give em a Nudge ───────────────────────────────────────────────────────────
@@ -266,7 +288,7 @@ nudge_athletes = []
 for _, row in roster_df.iterrows():
     reasons = []
     if row["_sessions"] == 0:
-        reasons.append("No sessions logged")
+        reasons.append("No sessions logged yet")
     elif row["_sessions"] == 1:
         reasons.append("Only 1 session logged")
     if row["_trend"] > 0 and row["_sessions"] >= 2:
@@ -280,7 +302,7 @@ with st.container(border=True):
     if not nudge_athletes:
         st.markdown(f'<p style="color:{TEAL};font-weight:600;">&#10003; Everyone is on track — great work!</p>', unsafe_allow_html=True)
     else:
-        cols = st.columns(len(nudge_athletes))
+        cols = st.columns(min(len(nudge_athletes), 6))
         for col, athlete in zip(cols, nudge_athletes):
             with col:
                 st.markdown(f"""
@@ -291,30 +313,34 @@ with st.container(border=True):
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-# ── My Roster ─────────────────────────────────────────────────────────────────
+# ── My Roster (sorted by profile number) ─────────────────────────────────────
 with st.container(border=True):
     st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">My Roster</p>', unsafe_allow_html=True)
     def style_trend(val):
-        if not val: return ""
+        if not val or val == "—": return "color:#cccccc;font-weight:400"
         if val.startswith("↓"): return f"color:{TEAL};font-weight:600"
         if val.startswith("↑") and "0.00" not in val: return f"color:{CORAL};font-weight:600"
         return "color:#cccccc;font-weight:400"
     display_cols = ["Athlete","Profile","Sessions","Avg Time","Best Time","Worst Time","Trend"]
-    st.dataframe(roster_df[display_cols].style.map(style_trend, subset=["Trend"]), use_container_width=True, hide_index=True)
+    sorted_roster = roster_df.sort_values("_profile_num")[display_cols]
+    st.dataframe(sorted_roster.style.map(style_trend, subset=["Trend"]), use_container_width=True, hide_index=True)
     st.markdown('<p style="font-size:0.75rem;color:#888;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</p>', unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-# ── Session History ───────────────────────────────────────────────────────────
+# ── Training Log (sorted by profile number) ───────────────────────────────────
 with st.container(border=True):
-    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Training Log</p>', unsafe_allow_html=True)
-    cols = st.columns(len(athlete_order))
-    for col, athlete in zip(cols, athlete_order):
-        adf = df[df["Athlete"] == athlete].sort_values("event_time")
+    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;">Training Log</p>', unsafe_allow_html=True)
+    sorted_profiles = sorted([p for p in range(1, TOTAL_PROFILES+1) if p in df["ProfileNum"].values])
+    cols = st.columns(len(sorted_profiles)) if sorted_profiles else st.columns(1)
+    for col, profile_num in zip(cols, sorted_profiles):
+        athlete = PROFILE_NAMES.get(profile_num, f"Athlete {profile_num}")
+        adf = df[df["ProfileNum"] == profile_num].sort_values("event_time")
         with col:
             st.markdown(f"**{athlete}**")
-            st.caption(f"Profile {adf['StationID'].iloc[0].split('_')[-1]}")
+            st.caption(f"Profile {profile_num}")
             for _, row in adf.iterrows():
                 st.markdown(f"**{row['event_time'].strftime('%m/%d')}** &nbsp; <span style='background:rgba(65,234,212,0.12);border:1.5px solid #41EAD4;border-radius:20px;padding:3px 12px;font-weight:600;font-size:0.85rem;color:#1a1a2e;'>{row['Time']:.2f}s</span>", unsafe_allow_html=True)
 
@@ -322,7 +348,7 @@ st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
 with st.expander("I Want to See the Raw Data"):
     st.dataframe(
-        df[["event_time","Athlete","StationID","DeviceID","Time","Profile"]]
+        df[["event_time","Athlete","ProfileNum","DeviceID","Time"]]
         .sort_values("event_time", ascending=False).reset_index(drop=True),
         use_container_width=True
     )
