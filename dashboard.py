@@ -13,14 +13,6 @@ POLLEN  = "#FFD166"
 TEAL    = "#41EAD4"
 PALETTE = [CORAL, TEAL, POLLEN, SLATE, "#A78BFA", "#F97316", "#38BDF8", "#FB7185"]
 
-CARD = """
-background: #ffffff;
-border-radius: 16px;
-padding: 28px 32px 20px 32px;
-box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
-margin-bottom: 20px;
-"""
-
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap');
@@ -56,17 +48,13 @@ span[data-baseweb="tag"] {{
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
 .block-container {{ padding-top: 2rem !important; }}
-[data-testid="stVerticalBlockBorderWrapper"] {{
+
+/* Target the iframe that wraps plotly charts and make it white */
+.stPlotlyChart {{
     background: #ffffff !important;
-    border: none !important;
     border-radius: 16px !important;
+    padding: 20px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
-}}
-[data-testid="stVerticalBlockBorderWrapper"] > div,
-[data-testid="stVerticalBlockBorderWrapper"] > div > div,
-[data-testid="stVerticalBlockBorderWrapper"] > div > div > div {{
-    background: #ffffff !important;
-    border-radius: 16px !important;
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -100,23 +88,15 @@ def load_data():
 
 df_raw = load_data()
 
-# ── White header ──────────────────────────────────────────────────────────────
-st.markdown(f"""
-<div style="{CARD}">
-    <div style="font-size: 2.3rem; font-weight: 700; color: #1a1a2e; letter-spacing: -0.03em;">
-        Team Roster Dashboard
-    </div>
-    <div style="font-size: 0.95rem; color: #1a1a2e; margin-top: 8px; opacity: 0.5;">
-        Athlete performance tracking &nbsp;·&nbsp; Lower time = faster = better
-    </div>
-</div>
-""", unsafe_allow_html=True)
+CARD = "background:#ffffff;border-radius:16px;padding:28px 32px 20px 32px;box-shadow:0 1px 4px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.04);margin-bottom:20px;"
+CARD_TITLE = "font-size:1.1rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;letter-spacing:-0.01em;"
+
+st.markdown(f'<div style="{CARD}"><div style="font-size:2.3rem;font-weight:700;color:#1a1a2e;letter-spacing:-0.03em;">Team Roster Dashboard</div><div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Athlete performance tracking &nbsp;·&nbsp; Lower time = faster = better</div></div>', unsafe_allow_html=True)
 
 if df_raw.empty:
     st.warning("No Results events found in live_events.json.")
     st.stop()
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("Filters")
     all_devices = sorted(df_raw["DeviceID"].unique())
@@ -139,7 +119,6 @@ with st.sidebar:
     start_date = max_date - delta
     end_date = max_date
 
-# ── Filter ────────────────────────────────────────────────────────────────────
 df = df_raw[
     (df_raw["DeviceID"].isin(selected_devices)) &
     (df_raw["event_time"].dt.date >= start_date) &
@@ -150,7 +129,6 @@ if df.empty:
     st.info("No data for the selected filters.")
     st.stop()
 
-# ── Build roster ──────────────────────────────────────────────────────────────
 rows = []
 for athlete in sorted(df["Athlete"].unique()):
     adf = df[df["Athlete"] == athlete].sort_values("event_time")
@@ -165,28 +143,15 @@ for athlete in sorted(df["Athlete"].unique()):
         trend = round(float(times[mid:].mean()) - float(times[:mid].mean()), 2)
     else:
         trend = 0.0
-    if sessions < 2:
-        trend_display = "↑ 0.00"
-    elif trend < 0:
-        trend_display = f"↓ {abs(trend):.2f}"
-    else:
-        trend_display = f"↑ {abs(trend):.2f}"
+    trend_display = "↑ 0.00" if sessions < 2 else (f"↓ {abs(trend):.2f}" if trend < 0 else f"↑ {abs(trend):.2f}")
     rows.append({
-        "Athlete":    athlete,
-        "StationID":  station,
-        "Sessions":   sessions,
-        "Avg Time":   f"{avg_t:.2f}",
-        "Best Time":  f"{best_t:.2f}",
-        "Worst Time": f"{worst_t:.2f}",
-        "Trend":      trend_display,
-        "_avg":       avg_t,
-        "_best":      best_t,
-        "_trend":     trend,
-        "_sessions":  sessions,
+        "Athlete": athlete, "StationID": station, "Sessions": sessions,
+        "Avg Time": f"{avg_t:.2f}", "Best Time": f"{best_t:.2f}", "Worst Time": f"{worst_t:.2f}",
+        "Trend": trend_display,
+        "_avg": avg_t, "_best": best_t, "_trend": trend, "_sessions": sessions,
     })
 roster_df = pd.DataFrame(rows)
 
-# ── KPIs ──────────────────────────────────────────────────────────────────────
 total_sessions  = len(df)
 athletes_active = df["Athlete"].nunique()
 fastest_row     = roster_df.loc[roster_df["_best"].idxmin()]
@@ -201,108 +166,76 @@ else:
     imp_name  = "No Data"
     imp_delta = None
 
-st.markdown(f"""
-<div style="font-size: 1.1rem; font-weight: 700; color: #1a1a2e;
-            letter-spacing: -0.01em; margin-bottom: 12px;">
-    {period_label}
-</div>
-""", unsafe_allow_html=True)
-
+st.markdown(f'<div style="{CARD_TITLE}">{period_label}</div>', unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("Total Sessions",  total_sessions)
 k2.metric("Athletes Active", athletes_active)
 k3.metric("Fastest Time",    fastest_time, delta=fastest_name, delta_color="off")
 k4.metric("Most Improved",   imp_name, delta=imp_delta, delta_color="inverse")
 
-st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
-# ── Charts side by side ───────────────────────────────────────────────────────
 athlete_order = roster_df.sort_values("_avg")["Athlete"].tolist()
 color_map = {a: PALETTE[i % len(PALETTE)] for i, a in enumerate(sorted(df["Athlete"].unique()))}
 
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    with st.container(border=True):
-        st.markdown('<p style="font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px;">Average Time by Athlete</p>', unsafe_allow_html=True)
-        bar_df = roster_df.sort_values("_avg", ascending=True)
-        fig1 = go.Figure(go.Bar(
-            x=bar_df["_avg"],
-            y=bar_df["Athlete"],
-            orientation="h",
-            marker=dict(
-                color=bar_df["_avg"],
-                colorscale=[[0, TEAL], [0.5, POLLEN], [1, CORAL]],
-                showscale=False,
-            ),
-            text=[f"{v:.2f}s" for v in bar_df["_avg"]],
-            textposition="outside",
-        ))
-        fig1.update_layout(
-            paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
-            font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-            xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
-            yaxis=dict(title=""),
-            margin=dict(l=10, r=60, t=10, b=10),
-            height=320,
-        )
-        st.plotly_chart(fig1, use_container_width=True)
+    bar_df = roster_df.sort_values("_avg", ascending=True)
+    fig1 = go.Figure(go.Bar(
+        x=bar_df["_avg"], y=bar_df["Athlete"], orientation="h",
+        marker=dict(color=bar_df["_avg"], colorscale=[[0,TEAL],[0.5,POLLEN],[1,CORAL]], showscale=False),
+        text=[f"{v:.2f}s" for v in bar_df["_avg"]], textposition="outside",
+    ))
+    fig1.update_layout(
+        paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
+        font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
+        title=dict(text="Average Time by Athlete", font=dict(size=15, color="#1a1a2e"), x=0, xref="paper"),
+        xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
+        yaxis=dict(title=""),
+        margin=dict(l=10, r=60, t=44, b=10), height=340,
+    )
+    st.plotly_chart(fig1, use_container_width=True)
 
 with chart_col2:
-    with st.container(border=True):
-        st.markdown('<p style="font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px;">Performance Trend Over Sessions</p>', unsafe_allow_html=True)
-        fig2 = go.Figure()
-        for athlete in athlete_order:
-            adf = df[df["Athlete"] == athlete].sort_values("event_time").reset_index(drop=True)
-            adf["session_num"] = range(1, len(adf) + 1)
-            fig2.add_trace(go.Scatter(
-                x=adf["session_num"],
-                y=adf["Time"],
-                mode="lines+markers",
-                name=athlete,
-                line=dict(width=2.5, color=color_map[athlete]),
-                marker=dict(size=9, color=color_map[athlete], line=dict(width=1.5, color="white")),
-                hovertemplate=f"<b>{athlete}</b><br>Session %{{x}}<br>Time: %{{y:.2f}}s<extra></extra>",
-            ))
-        fig2.update_layout(
-            paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
-            font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-            xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
-            yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
-            legend=dict(bgcolor="#ffffff", bordercolor="#eeeeee", borderwidth=1),
-            margin=dict(l=10, r=10, t=10, b=10),
-            height=320,
-            hovermode="x unified",
-        )
-        st.plotly_chart(fig2, use_container_width=True)
-        st.caption("Lines appear once athletes have 2+ sessions")
+    fig2 = go.Figure()
+    for athlete in athlete_order:
+        adf = df[df["Athlete"] == athlete].sort_values("event_time").reset_index(drop=True)
+        adf["session_num"] = range(1, len(adf) + 1)
+        fig2.add_trace(go.Scatter(
+            x=adf["session_num"], y=adf["Time"], mode="lines+markers", name=athlete,
+            line=dict(width=2.5, color=color_map[athlete]),
+            marker=dict(size=9, color=color_map[athlete], line=dict(width=1.5, color="white")),
+            hovertemplate=f"<b>{athlete}</b><br>Session %{{x}}<br>Time: %{{y:.2f}}s<extra></extra>",
+        ))
+    fig2.update_layout(
+        paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
+        font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
+        title=dict(text="Performance Trend Over Sessions", font=dict(size=15, color="#1a1a2e"), x=0, xref="paper"),
+        xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
+        yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
+        legend=dict(bgcolor="#ffffff", bordercolor="#eeeeee", borderwidth=1),
+        margin=dict(l=10, r=10, t=44, b=10), height=340,
+        hovermode="x unified",
+    )
+    st.plotly_chart(fig2, use_container_width=True)
 
-st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-# ── My Roster table ───────────────────────────────────────────────────────────
-st.markdown(f'<div style="{CARD}">', unsafe_allow_html=True)
-st.markdown('<div style="font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 12px;">My Roster</div>', unsafe_allow_html=True)
-
+st.markdown(f'<div style="{CARD}"><div style="{CARD_TITLE}">My Roster</div>', unsafe_allow_html=True)
 def style_trend(val):
-    if val is None or val == "":
-        return ""
-    if val.startswith("↓"):
-        return f"color: {TEAL}; font-weight: 600"
-    elif val.startswith("↑") and "0.00" not in val:
-        return f"color: {CORAL}; font-weight: 600"
-    return "color: #cccccc; font-weight: 400"
-
-display_cols = ["Athlete", "StationID", "Sessions", "Avg Time", "Best Time", "Worst Time", "Trend"]
+    if val is None or val == "": return ""
+    if val.startswith("↓"): return f"color:{TEAL};font-weight:600"
+    elif val.startswith("↑") and "0.00" not in val: return f"color:{CORAL};font-weight:600"
+    return "color:#cccccc;font-weight:400"
+display_cols = ["Athlete","StationID","Sessions","Avg Time","Best Time","Worst Time","Trend"]
 styled = roster_df[display_cols].style.map(style_trend, subset=["Trend"])
 st.dataframe(styled, use_container_width=True, hide_index=True)
-st.markdown('<div style="font-size: 0.75rem; color: #888; margin-top: 8px;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</div>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('<div style="font-size:0.75rem;color:#888;margin-top:8px;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</div></div>', unsafe_allow_html=True)
 
-st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-# ── Session history ───────────────────────────────────────────────────────────
-st.markdown(f'<div style="{CARD}">', unsafe_allow_html=True)
-st.markdown('<div style="font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 16px;">Session History by Athlete</div>', unsafe_allow_html=True)
+st.markdown(f'<div style="{CARD}"><div style="{CARD_TITLE}">Session History by Athlete</div>', unsafe_allow_html=True)
 cols = st.columns(len(athlete_order))
 for col, athlete in zip(cols, athlete_order):
     adf = df[df["Athlete"] == athlete].sort_values("event_time")
@@ -313,11 +246,10 @@ for col, athlete in zip(cols, athlete_order):
             st.markdown(f"`{row['event_time'].strftime('%m/%d %H:%M')}` — **{row['Time']:.2f}s**")
 st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
-
+st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 with st.expander("Raw Results Data"):
     st.dataframe(
-        df[["event_time", "Athlete", "StationID", "DeviceID", "Time", "Profile"]]
+        df[["event_time","Athlete","StationID","DeviceID","Time","Profile"]]
         .sort_values("event_time", ascending=False).reset_index(drop=True),
         use_container_width=True
     )
