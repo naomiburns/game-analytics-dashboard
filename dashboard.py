@@ -270,7 +270,7 @@ for _, row in roster_df.iterrows():
     if reasons:
         nudge_athletes.append({"Athlete": row["Athlete"], "Profile": row["Profile"], "Reasons": reasons})
 
-nudge_col, roster_col = st.columns(2)
+roster_col, nudge_col = st.columns(2)
 
 with nudge_col:
     with st.container(border=True):
@@ -323,7 +323,7 @@ with roster_col:
             trend_str = row["Trend"] if is_active else "—"
             tt = row["_trend_type"]
             trend_color = TEAL if tt == "down" else (CORAL if tt == "up" else "#aaaaaa")
-            best_color = TEAL if is_active else "#aaaaaa"
+            best_color = "#0a8a6a" if is_active else "#aaaaaa"
             st.markdown(
                 f'<div style="display:grid;grid-template-columns:4px 130px 45px 75px 75px 75px 65px;gap:0;align-items:center;padding:6px 0 6px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">'
                 f'<div style="width:3px;height:20px;background:{bar_color};border-radius:2px;"></div>'
