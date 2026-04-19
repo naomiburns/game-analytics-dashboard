@@ -18,6 +18,7 @@ st.markdown(f"""
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap');
 html, body, [class*="css"] {{ font-family: 'DM Sans', sans-serif; color: #1a1a2e; }}
 .stApp {{ background-color: #f0f2f6; }}
+.block-container {{ padding-top: 2rem !important; padding-left: 3rem !important; padding-right: 3rem !important; }}
 section[data-testid="stSidebar"] {{ background-color: #ffffff; border-right: 1px solid #e4e5ea; }}
 section[data-testid="stSidebar"] * {{ color: #1a1a2e !important; }}
 section[data-testid="stSidebar"] label {{
@@ -45,42 +46,43 @@ span[data-baseweb="tag"] {{
     background-color: {TEAL} !important; border-radius: 20px !important;
     color: #1a1a2e !important; font-size: 0.78rem !important; font-weight: 600 !important;
 }}
-/* Pill-shaped radio buttons */
-div[data-testid="stRadio"] > div {{
-    display: flex; flex-direction: column; gap: 6px;
-}}
+/* Pill radio buttons */
+div[data-testid="stRadio"] > div {{ display: flex; flex-direction: column; gap: 6px; }}
 div[data-testid="stRadio"] label {{
     background: rgba(65,234,212,0.08) !important;
     border: 1.5px solid rgba(65,234,212,0.35) !important;
     border-radius: 20px !important;
     padding: 7px 18px !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
-    color: #1a1a2e !important;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-transform: none !important;
-    letter-spacing: 0 !important;
+    font-size: 0.85rem !important; font-weight: 600 !important;
+    color: #1a1a2e !important; cursor: pointer;
+    text-transform: none !important; letter-spacing: 0 !important;
 }}
 div[data-testid="stRadio"] label:has(input:checked) {{
     background: rgba(65,234,212,0.25) !important;
     border-color: {TEAL} !important;
-    color: #1a1a2e !important;
 }}
-div[data-testid="stRadio"] label:has(input:checked) div[data-testid="stMarkdownContainer"] p {{
-    color: #1a1a2e !important;
-}}
-/* Make the radio dot teal */
-div[data-testid="stRadio"] input {{
-    accent-color: {TEAL} !important;
-}}
+div[data-testid="stRadio"] input {{ accent-color: {TEAL} !important; }}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
-[data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
-.block-container {{ padding-top: 2rem !important; padding-left: 3rem !important; padding-right: 3rem !important; }}
+/* Dataframe rounded corners */
+[data-testid="stDataFrame"] {{ border-radius: 12px !important; overflow: hidden !important; }}
+[data-testid="stDataFrame"] > div {{ border-radius: 12px !important; }}
+/* Chart containers */
 .stPlotlyChart {{
     background: #ffffff !important;
     border-radius: 16px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
+}}
+/* White containers for table and session history */
+[data-testid="stVerticalBlockBorderWrapper"] {{
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    border: none !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
+}}
+[data-testid="stVerticalBlockBorderWrapper"] > div,
+[data-testid="stVerticalBlockBorderWrapper"] > div > div {{
+    background: #ffffff !important;
+    border-radius: 16px !important;
 }}
 </style>
 """, unsafe_allow_html=True)
@@ -115,21 +117,27 @@ def load_data():
 df_raw = load_data()
 
 CARD = "background:#ffffff;border-radius:16px;padding:28px 32px 20px 32px;box-shadow:0 1px 4px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.04);margin-bottom:20px;"
-CARD_TITLE = "font-size:1.1rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;letter-spacing:-0.01em;"
 
-st.markdown(f'<div style="{CARD}"><div style="font-size:2.3rem;font-weight:700;color:#1a1a2e;letter-spacing:-0.03em;">Team Roster Dashboard</div><div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Athlete performance tracking &nbsp;·&nbsp; Lower time = faster = better</div></div>', unsafe_allow_html=True)
+# ── Header ────────────────────────────────────────────────────────────────────
+st.markdown(f"""
+<div style="{CARD}">
+    <div style="font-size:2.3rem;font-weight:700;color:#1a1a2e;letter-spacing:-0.03em;">Team Roster Dashboard</div>
+    <div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Athlete performance tracking &nbsp;·&nbsp; Lower time = faster = better</div>
+</div>
+""", unsafe_allow_html=True)
 
 if df_raw.empty:
     st.warning("No Results events found in live_events.json.")
     st.stop()
 
+# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("Filters")
     all_devices = sorted(df_raw["DeviceID"].unique())
     selected_devices = st.multiselect("Team (DeviceID)", all_devices, default=all_devices)
     st.markdown("**Date Range**")
     period_options = ["7 Days", "14 Days", "30 Days", "3 Months", "6 Months"]
-    selected_period = st.radio("Select period", period_options, index=0, horizontal=False, label_visibility="collapsed")
+    selected_period = st.radio("Select period", period_options, index=0, label_visibility="collapsed")
     period_map = {
         "7 Days":   (timedelta(days=6),   "Last 7 Days"),
         "14 Days":  (timedelta(days=13),  "Last 14 Days"),
@@ -142,6 +150,7 @@ with st.sidebar:
     start_date = max_date - delta
     end_date = max_date
 
+# ── Filter ────────────────────────────────────────────────────────────────────
 df = df_raw[
     (df_raw["DeviceID"].isin(selected_devices)) &
     (df_raw["event_time"].dt.date >= start_date) &
@@ -152,17 +161,16 @@ if df.empty:
     st.info("No data for the selected filters.")
     st.stop()
 
+# ── Build roster ──────────────────────────────────────────────────────────────
 rows = []
 for athlete in sorted(df["Athlete"].unique()):
     adf = df[df["Athlete"] == athlete].sort_values("event_time")
     times = adf["Time"].values
     sessions = len(times)
-    avg_t   = float(times.mean())
-    best_t  = float(times.min())
-    worst_t = float(times.max())
+    avg_t, best_t, worst_t = float(times.mean()), float(times.min()), float(times.max())
     station = adf["StationID"].iloc[0]
     if sessions >= 2:
-        mid   = sessions // 2
+        mid = sessions // 2
         trend = round(float(times[mid:].mean()) - float(times[:mid].mean()), 2)
     else:
         trend = 0.0
@@ -175,29 +183,26 @@ for athlete in sorted(df["Athlete"].unique()):
     })
 roster_df = pd.DataFrame(rows)
 
-total_sessions  = len(df)
-athletes_active = df["Athlete"].nunique()
-fastest_row     = roster_df.loc[roster_df["_best"].idxmin()]
-fastest_time    = f"{fastest_row['_best']:.2f}s"
-fastest_name    = fastest_row["Athlete"]
-has_trend       = roster_df[roster_df["_sessions"] >= 2]
+# ── KPIs ──────────────────────────────────────────────────────────────────────
+fastest_row = roster_df.loc[roster_df["_best"].idxmin()]
+has_trend   = roster_df[roster_df["_sessions"] >= 2]
 if not has_trend.empty:
     best_imp  = has_trend.loc[has_trend["_trend"].idxmin()]
     imp_name  = best_imp["Athlete"]
     imp_delta = f"{best_imp['_trend']:+.2f}s"
 else:
-    imp_name  = "No Data"
-    imp_delta = None
+    imp_name, imp_delta = "No Data", None
 
-st.markdown(f'<div style="{CARD_TITLE}">{period_label}</div>', unsafe_allow_html=True)
+st.markdown(f'<div style="font-size:1.1rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;">{period_label}</div>', unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
-k1.metric("Total Sessions",  total_sessions)
-k2.metric("Athletes Active", athletes_active)
-k3.metric("Fastest Time",    fastest_time, delta=fastest_name, delta_color="off")
+k1.metric("Total Sessions",  len(df))
+k2.metric("Athletes Active", df["Athlete"].nunique())
+k3.metric("Fastest Time",    f"{fastest_row['_best']:.2f}s", delta=fastest_row["Athlete"], delta_color="off")
 k4.metric("Most Improved",   imp_name, delta=imp_delta, delta_color="inverse")
 
 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
+# ── Charts ────────────────────────────────────────────────────────────────────
 athlete_order = roster_df.sort_values("_avg")["Athlete"].tolist()
 color_map = {a: PALETTE[i % len(PALETTE)] for i, a in enumerate(sorted(df["Athlete"].unique()))}
 
@@ -216,7 +221,7 @@ with chart_col1:
         title=dict(text="Average Time by Athlete", font=dict(size=15, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
         yaxis=dict(title=""),
-        margin=dict(l=10, r=60, t=44, b=10), height=400,
+        margin=dict(l=10, r=70, t=44, b=10), height=400,
     )
     st.plotly_chart(fig1, use_container_width=True, config={"scrollZoom": False, "displayModeBar": False})
 
@@ -245,31 +250,34 @@ with chart_col2:
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-st.markdown(f'<div style="{CARD}"><div style="{CARD_TITLE}">My Roster</div>', unsafe_allow_html=True)
-def style_trend(val):
-    if val is None or val == "": return ""
-    if val.startswith("↓"): return f"color:{TEAL};font-weight:600"
-    elif val.startswith("↑") and "0.00" not in val: return f"color:{CORAL};font-weight:600"
-    return "color:#cccccc;font-weight:400"
-display_cols = ["Athlete","StationID","Sessions","Avg Time","Best Time","Worst Time","Trend"]
-styled = roster_df[display_cols].style.map(style_trend, subset=["Trend"])
-st.dataframe(styled, use_container_width=True, hide_index=True)
-st.markdown('<div style="font-size:0.75rem;color:#888;margin-top:8px;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</div></div>', unsafe_allow_html=True)
+# ── My Roster ─────────────────────────────────────────────────────────────────
+with st.container(border=True):
+    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">My Roster</p>', unsafe_allow_html=True)
+    def style_trend(val):
+        if not val: return ""
+        if val.startswith("↓"): return f"color:{TEAL};font-weight:600"
+        if val.startswith("↑") and "0.00" not in val: return f"color:{CORAL};font-weight:600"
+        return "color:#cccccc;font-weight:400"
+    display_cols = ["Athlete","StationID","Sessions","Avg Time","Best Time","Worst Time","Trend"]
+    st.dataframe(roster_df[display_cols].style.map(style_trend, subset=["Trend"]), use_container_width=True, hide_index=True)
+    st.markdown('<p style="font-size:0.75rem;color:#888;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</p>', unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-st.markdown(f'<div style="{CARD}"><div style="{CARD_TITLE}">Session History by Athlete</div>', unsafe_allow_html=True)
-cols = st.columns(len(athlete_order))
-for col, athlete in zip(cols, athlete_order):
-    adf = df[df["Athlete"] == athlete].sort_values("event_time")
-    with col:
-        st.markdown(f"**{athlete}**")
-        st.caption(adf["StationID"].iloc[0])
-        for _, row in adf.iterrows():
-            st.markdown(f"`{row['event_time'].strftime('%m/%d %H:%M')}` — **{row['Time']:.2f}s**")
-st.markdown('</div>', unsafe_allow_html=True)
+# ── Session History ───────────────────────────────────────────────────────────
+with st.container(border=True):
+    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Session History by Athlete</p>', unsafe_allow_html=True)
+    cols = st.columns(len(athlete_order))
+    for col, athlete in zip(cols, athlete_order):
+        adf = df[df["Athlete"] == athlete].sort_values("event_time")
+        with col:
+            st.markdown(f"**{athlete}**")
+            st.caption(adf["StationID"].iloc[0])
+            for _, row in adf.iterrows():
+                st.markdown(f"`{row['event_time'].strftime('%m/%d %H:%M')}` — **{row['Time']:.2f}s**")
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+
 with st.expander("Raw Results Data"):
     st.dataframe(
         df[["event_time","Athlete","StationID","DeviceID","Time","Profile"]]
