@@ -47,9 +47,10 @@ span[data-baseweb="tag"] {{
 }}
 [data-testid="stVerticalBlockBorderWrapper"] {{
     background-color: #ffffff !important;
-    border-radius: 14px !important;
+    border-radius: 16px !important;
     border: none !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
+    padding: 8px !important;
 }}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
@@ -231,7 +232,7 @@ with chart_col1:
             textposition="outside",
         ))
         fig1.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
             font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
             title=dict(text="Average Time by Athlete",
                        font=dict(size=15, family="DM Sans, sans-serif", color="#1a1a2e"),
@@ -259,7 +260,7 @@ with chart_col2:
                 hovertemplate=f"<b>{athlete}</b><br>Session %{{x}}<br>Time: %{{y:.2f}}s<extra></extra>",
             ))
         fig2.update_layout(
-            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
             font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
             title=dict(text="Performance Trend Over Sessions",
                        font=dict(size=15, family="DM Sans, sans-serif", color="#1a1a2e"),
