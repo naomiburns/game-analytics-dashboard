@@ -45,12 +45,11 @@ span[data-baseweb="tag"] {{
     background-color: {TEAL} !important; border-radius: 20px !important;
     color: #1a1a2e !important; font-size: 0.78rem !important; font-weight: 600 !important;
 }}
-/* White card background for chart containers and table */
-[data-testid="stVerticalBlock"] > [data-testid="stVerticalBlock"] {{
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 16px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+[data-testid="stVerticalBlockBorderWrapper"] {{
+    background-color: #ffffff !important;
+    border-radius: 14px !important;
+    border: none !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
 }}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
@@ -118,12 +117,16 @@ with st.sidebar:
     if unit == "Days":
         amount = st.number_input("Amount", min_value=1, max_value=365, value=7)
         delta = timedelta(days=amount - 1)
+        period_label = f"Last {amount} Day{'s' if amount != 1 else ''}"
     elif unit == "Weeks":
         amount = st.number_input("Amount", min_value=1, max_value=52, value=1)
         delta = timedelta(weeks=amount)
+        period_label = f"Last {amount} Week{'s' if amount != 1 else ''}"
     else:
         amount = st.number_input("Amount", min_value=1, max_value=24, value=1)
         delta = timedelta(days=amount * 30)
+        period_label = f"Last {amount} Month{'s' if amount != 1 else ''}"
+
     max_date = df_raw["event_time"].max().date()
     start_date = max_date - delta
     end_date = max_date
@@ -190,6 +193,14 @@ else:
     imp_name  = "No Data"
     imp_delta = None
 
+# Dynamic period label above KPIs
+st.markdown(f"""
+<div style="font-size: 1.1rem; font-weight: 700; color: #1a1a2e;
+            letter-spacing: -0.01em; margin-bottom: 12px;">
+    {period_label}
+</div>
+""", unsafe_allow_html=True)
+
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("Total Sessions",  total_sessions)
 k2.metric("Athletes Active", athletes_active)
@@ -203,13 +214,6 @@ athlete_order = roster_df.sort_values("_avg")["Athlete"].tolist()
 color_map = {a: PALETTE[i % len(PALETTE)] for i, a in enumerate(sorted(df["Athlete"].unique()))}
 
 chart_col1, chart_col2 = st.columns(2)
-
-def chart_style():
-    return dict(
-        paper_bgcolor="#ffffff",
-        plot_bgcolor="#ffffff",
-        font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-    )
 
 with chart_col1:
     with st.container(border=True):
@@ -227,7 +231,8 @@ with chart_col1:
             textposition="outside",
         ))
         fig1.update_layout(
-            **chart_style(),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
             title=dict(text="Average Time by Athlete",
                        font=dict(size=15, family="DM Sans, sans-serif", color="#1a1a2e"),
                        x=0, xref="paper"),
@@ -254,7 +259,8 @@ with chart_col2:
                 hovertemplate=f"<b>{athlete}</b><br>Session %{{x}}<br>Time: %{{y:.2f}}s<extra></extra>",
             ))
         fig2.update_layout(
-            **chart_style(),
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
             title=dict(text="Performance Trend Over Sessions",
                        font=dict(size=15, family="DM Sans, sans-serif", color="#1a1a2e"),
                        x=0, xref="paper"),
