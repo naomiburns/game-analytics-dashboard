@@ -283,7 +283,7 @@ with st.container(border=True):
             st.markdown(f"**{athlete}**")
             st.caption(adf["StationID"].iloc[0])
             for _, row in adf.iterrows():
-                st.markdown(f"`{row['event_time'].strftime('%m/%d %H:%M')}` — **{row['Time']:.2f}s**")
+                st.markdown(f"**{row['event_time'].strftime('%m/%d')}** &nbsp; <span style='background:rgba(65,234,212,0.12);border:1.5px solid #41EAD4;border-radius:20px;padding:3px 12px;font-weight:600;font-size:0.85rem;color:#1a1a2e;'>{row['Time']:.2f}s</span>", unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
