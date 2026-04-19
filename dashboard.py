@@ -131,7 +131,7 @@ CARD = "background:#ffffff;border-radius:16px;padding:28px 32px 20px 32px;box-sh
 st.markdown(f"""
 <div style="{CARD}">
     <div style="font-size:2.3rem;font-weight:700;color:#1a1a2e;letter-spacing:-0.03em;">Team Roster Dashboard</div>
-    <div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Athlete performance tracking &nbsp;·&nbsp; Lower time = faster = better</div>
+    <div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Your athletes are logging vision training reps through the Ver app. Monitor who's showing up, how often, and whether their reaction times are improving — the same way you'd track any other training metric.</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -282,7 +282,7 @@ with st.container(border=True):
         adf = df[df["Athlete"] == athlete].sort_values("event_time")
         with col:
             st.markdown(f"**{athlete}**")
-            st.caption(adf["StationID"].iloc[0])
+            st.caption(f"Profile {adf['StationID'].iloc[0].split('_')[-1]}")
             for _, row in adf.iterrows():
                 st.markdown(f"**{row['event_time'].strftime('%m/%d')}** &nbsp; <span style='background:rgba(65,234,212,0.12);border:1.5px solid #41EAD4;border-radius:20px;padding:3px 12px;font-weight:600;font-size:0.85rem;color:#1a1a2e;'>{row['Time']:.2f}s</span>", unsafe_allow_html=True)
 
