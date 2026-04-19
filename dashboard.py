@@ -289,10 +289,15 @@ for _, row in roster_df.iterrows():
     reasons = []
     if row["_sessions"] == 0:
         reasons.append("No sessions logged yet")
-    elif row["_sessions"] == 1:
-        reasons.append("Only 1 session logged")
-    if row["_trend"] > 0 and row["_sessions"] >= 2:
-        reasons.append("Times are slipping")
+    else:
+        # Check if last session was more than 7 days ago
+        profile_num = row["_profile_num"]
+        adf = df[df["ProfileNum"] == profile_num]
+        if not adf.empty:
+            last_session = adf["event_time"].max().date()
+            days_since = (end_date - last_session).days
+            if days_since > 7:
+                reasons.append(f"Last session {days_since} days ago")
     if reasons:
         nudge_athletes.append({"Athlete": row["Athlete"], "Profile": row["Profile"], "Reasons": reasons})
 
@@ -302,11 +307,14 @@ with st.container(border=True):
     if not nudge_athletes:
         st.markdown(f'<p style="color:{TEAL};font-weight:600;">&#10003; Everyone is on track — great work!</p>', unsafe_allow_html=True)
     else:
-        cols = st.columns(min(len(nudge_athletes), 6))
-        for col, athlete in zip(cols, nudge_athletes):
-            with col:
-                st.markdown(f"""
-<div style="background:rgba(255,111,89,0.08);border:1.5px solid rgba(255,111,89,0.3);border-radius:12px;padding:14px 16px;">
+        # Show in rows of 6
+        for i in range(0, len(nudge_athletes), 6):
+            chunk = nudge_athletes[i:i+6]
+            cols = st.columns(6)
+            for col, athlete in zip(cols, chunk):
+                with col:
+                    st.markdown(f"""
+<div style="background:rgba(255,111,89,0.08);border:1.5px solid rgba(255,111,89,0.3);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
     <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;margin-bottom:4px;">{athlete['Athlete']}</div>
     <div style="font-size:0.75rem;color:#888;margin-bottom:8px;">Profile {athlete['Profile']}</div>
     {"".join(f'<div style="font-size:0.8rem;color:{CORAL};margin-bottom:3px;">· {r}</div>' for r in athlete["Reasons"])}
@@ -325,7 +333,7 @@ with st.container(border=True):
         return "color:#cccccc;font-weight:400"
     display_cols = ["Athlete","Profile","Sessions","Avg Time","Best Time","Worst Time","Trend"]
     sorted_roster = roster_df.sort_values("_profile_num")[display_cols]
-    st.dataframe(sorted_roster.style.map(style_trend, subset=["Trend"]), use_container_width=True, hide_index=True)
+    st.dataframe(sorted_roster.style.map(style_trend, subset=["Trend"]), use_container_width=True, hide_index=True, height=(len(roster_df) + 1) * 35 + 10)
     st.markdown('<p style="font-size:0.75rem;color:#888;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</p>', unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
