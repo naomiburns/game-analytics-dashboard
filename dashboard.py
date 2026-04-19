@@ -141,7 +141,7 @@ def style_trend(val):
 
 display_cols = ["Athlete", "StationID", "Team (DeviceID)", "Sessions",
                 "Avg Time (s)", "Best Time (s)", "Worst Time (s)", "Trend (s)"]
-styled = roster_df[display_cols].style.applymap(style_trend, subset=["Trend (s)"])
+styled = roster_df[display_cols].style.map(style_trend, subset=["Trend (s)"])
 st.dataframe(styled, use_container_width=True, hide_index=True)
 st.caption("💚 Negative trend = getting faster (good!)  ·  ❤️ Positive trend = getting slower")
 st.divider()
