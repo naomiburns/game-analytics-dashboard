@@ -314,10 +314,10 @@ with st.container(border=True):
             for col, athlete in zip(cols, chunk):
                 with col:
                     st.markdown(f"""
-<div style="background:rgba(255,111,89,0.08);border:1.5px solid rgba(255,111,89,0.3);border-radius:12px;padding:14px 16px;margin-bottom:8px;">
-    <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;margin-bottom:4px;">{athlete['Athlete']}</div>
-    <div style="font-size:0.75rem;color:#888;margin-bottom:8px;">Profile {athlete['Profile']}</div>
-    {"".join(f'<div style="font-size:0.8rem;color:{CORAL};margin-bottom:3px;">· {r}</div>' for r in athlete["Reasons"])}
+<div style="background:rgba(255,111,89,0.08);border:1.5px solid rgba(255,111,89,0.3);border-radius:12px;padding:10px 12px;margin-bottom:8px;">
+    <div style="font-weight:700;font-size:0.88rem;color:#1a1a2e;margin-bottom:2px;">{athlete['Athlete']}</div>
+    <div style="font-size:0.72rem;color:#888;margin-bottom:6px;">Profile {athlete['Profile']}</div>
+    {"".join(f'<div style="font-size:0.75rem;color:{CORAL};margin-bottom:2px;">· {r}</div>' for r in athlete["Reasons"])}
 </div>
 """, unsafe_allow_html=True)
 
