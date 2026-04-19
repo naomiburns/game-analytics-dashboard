@@ -20,17 +20,14 @@ html, body, [class*="css"] { font-family: 'DM Sans', sans-serif; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Dummy name mapping ────────────────────────────────────────────────────────
 DUMMY_NAMES = ["Jane", "Jill", "Sophie", "Ellie", "Alex", "Maya", "Zoe", "Ava"]
 
-# ── Load data ─────────────────────────────────────────────────────────────────
 @st.cache_data(ttl=60)
 def load_data():
     path = Path(__file__).parent / "live_events.json"
     if not path.exists():
         return pd.DataFrame()
     data = json.load(open(path))
-
     results = []
     for r in data:
         if r.get("event_id") == "Results" and "custom_fields" in r:
@@ -43,11 +40,9 @@ def load_data():
                 "Time": cf.get("Time"),
                 "Profile": cf.get("Profile"),
             })
-
     df = pd.DataFrame(results)
     if df.empty:
         return df
-
     station_ids = sorted(df["StationID"].unique())
     name_map = {sid: DUMMY_NAMES[i % len(DUMMY_NAMES)] for i, sid in enumerate(station_ids)}
     df["Athlete"] = df["StationID"].map(name_map)
@@ -55,7 +50,6 @@ def load_data():
 
 df_raw = load_data()
 
-# ── Header ────────────────────────────────────────────────────────────────────
 st.title("🏃 Team Roster Dashboard")
 st.caption("Tracking athlete performance by StationID · Lower time = faster = better")
 st.divider()
@@ -64,7 +58,6 @@ if df_raw.empty:
     st.warning("No Results events found in live_events.json.")
     st.stop()
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("⚙️ Filters")
     all_devices = sorted(df_raw["DeviceID"].unique())
@@ -79,7 +72,6 @@ with st.sidebar:
         max_value=max_date
     )
 
-# ── Filter ────────────────────────────────────────────────────────────────────
 df = df_raw[
     (df_raw["DeviceID"].isin(selected_devices)) &
     (df_raw["event_time"].dt.date >= start_date) &
@@ -90,7 +82,6 @@ if df.empty:
     st.info("No data for the selected filters.")
     st.stop()
 
-# ── Top KPIs ──────────────────────────────────────────────────────────────────
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("Total Sessions", len(df))
 k2.metric("Athletes Tracked", df["StationID"].nunique())
@@ -98,58 +89,63 @@ k3.metric("Teams", df["DeviceID"].nunique())
 k4.metric("Avg Time (s)", f"{df['Time'].mean():.2f}")
 st.divider()
 
-# ── Roster table ──────────────────────────────────────────────────────────────
 st.subheader("📋 Athlete Roster")
 
-roster = (
-    df.sort_values("event_time")
-    .groupby(["Athlete", "StationID", "DeviceID"])
-    .agg(
-        Sessions=("Time", "count"),
-        Avg_Time=("Time", "mean"),
-        Best_Time=("Time", "min"),
-        Worst_Time=("Time", "max"),
-    )
-    .reset_index()
-)
+# Build roster manually to avoid pandas groupby issues
+rows = []
+for athlete in sorted(df["Athlete"].unique()):
+    adf = df[df["Athlete"] == athlete].sort_values("event_time")
+    times = adf["Time"].values
+    sessions = len(times)
+    avg_t = round(float(times.mean()), 2)
+    best_t = round(float(times.min()), 2)
+    worst_t = round(float(times.max()), 2)
+    station = adf["StationID"].iloc[0]
+    device = adf["DeviceID"].iloc[0]
 
-def rate_of_change(group):
-    times = group.sort_values("event_time")["Time"].values
-    if len(times) < 2:
-        return None
-    mid = len(times) // 2
-    first_avg = times[:mid].mean() if mid > 0 else times[0]
-    second_avg = times[mid:].mean()
-    return round(second_avg - first_avg, 3)
+    # Trend: compare first half avg vs second half avg
+    if sessions >= 2:
+        mid = sessions // 2
+        trend = round(float(times[mid:].mean()) - float(times[:mid].mean()), 3)
+        trend_str = f"{trend:+.3f}s"
+    else:
+        trend = None
+        trend_str = "—"
 
-roc = df.groupby("Athlete").apply(rate_of_change, include_groups=False).reset_index()
-roc.columns = ["Athlete", "Trend (s)"]
-roster = roster.merge(roc, on="Athlete", how="left")
-roster["Avg_Time"] = roster["Avg_Time"].round(2)
-roster["Best_Time"] = roster["Best_Time"].round(2)
-roster["Worst_Time"] = roster["Worst_Time"].round(2)
+    rows.append({
+        "Athlete": athlete,
+        "StationID": station,
+        "Team (DeviceID)": device,
+        "Sessions": sessions,
+        "Avg Time (s)": avg_t,
+        "Best Time (s)": best_t,
+        "Worst Time (s)": worst_t,
+        "Trend (s)": trend_str,
+        "_trend_val": trend,
+    })
 
-roster_display = roster.rename(columns={
-    "Avg_Time": "Avg Time (s)",
-    "Best_Time": "Best Time (s)",
-    "Worst_Time": "Worst Time (s)",
-})
+roster_df = pd.DataFrame(rows)
 
 def style_trend(val):
-    if val is None:
-        return ""
-    if val < 0:
-        return "color: #2ea043; font-weight: 600"
-    elif val > 0:
-        return "color: #da3633; font-weight: 600"
+    if val == "—":
+        return "color: #888"
+    try:
+        num = float(val.replace("s", ""))
+        if num < 0:
+            return "color: #2ea043; font-weight: 600"
+        elif num > 0:
+            return "color: #da3633; font-weight: 600"
+    except:
+        pass
     return ""
 
-styled = roster_display.style.applymap(style_trend, subset=["Trend (s)"])
+display_cols = ["Athlete", "StationID", "Team (DeviceID)", "Sessions",
+                "Avg Time (s)", "Best Time (s)", "Worst Time (s)", "Trend (s)"]
+styled = roster_df[display_cols].style.applymap(style_trend, subset=["Trend (s)"])
 st.dataframe(styled, use_container_width=True, hide_index=True)
 st.caption("💚 Negative trend = getting faster (good!)  ·  ❤️ Positive trend = getting slower")
 st.divider()
 
-# ── Per-athlete session history ───────────────────────────────────────────────
 st.subheader("📈 Session History by Athlete")
 athletes = sorted(df["Athlete"].unique())
 cols = st.columns(len(athletes))
@@ -163,7 +159,6 @@ for col, athlete in zip(cols, athletes):
 
 st.divider()
 
-# ── Raw data ──────────────────────────────────────────────────────────────────
 with st.expander("🔍 Raw Results Data"):
     st.dataframe(
         df[["event_time", "Athlete", "StationID", "DeviceID", "Time", "Profile"]]
