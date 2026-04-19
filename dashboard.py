@@ -218,7 +218,7 @@ with chart_col1:
     fig1.update_layout(
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-        title=dict(text="Average Time by Athlete", font=dict(size=38, color="#1a1a2e"), x=0, xref="paper"),
+        title=dict(text="Average Time by Athlete", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
         yaxis=dict(title=""),
         margin=dict(l=10, r=70, t=70, b=10), height=400,
@@ -239,7 +239,7 @@ with chart_col2:
     fig2.update_layout(
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-        title=dict(text="Performance Trend Over Sessions", font=dict(size=38, color="#1a1a2e"), x=0, xref="paper"),
+        title=dict(text="Performance Trend Over Sessions", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
         yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
         legend=dict(bgcolor="#ffffff", bordercolor="#eeeeee", borderwidth=1),
