@@ -76,13 +76,10 @@ div[data-testid="stRadio"] input {{
 }}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
-.block-container {{ padding-top: 2rem !important; }}
-
-/* Target the iframe that wraps plotly charts and make it white */
+.block-container {{ padding-top: 2rem !important; padding-left: 3rem !important; padding-right: 3rem !important; }}
 .stPlotlyChart {{
     background: #ffffff !important;
     border-radius: 16px !important;
-    padding: 20px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
 }}
 </style>
