@@ -141,9 +141,9 @@ if df_raw.empty:
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.header("Filters")
+    st.header("Customize View")
     all_devices = sorted(df_raw["DeviceID"].unique())
-    selected_devices = st.multiselect("Team (DeviceID)", all_devices, default=all_devices)
+    selected_devices = st.multiselect("Headset", all_devices, default=all_devices)
     st.markdown("**Date Range**")
     period_options = ["7 Days", "14 Days", "30 Days", "3 Months", "6 Months"]
     selected_period = st.radio("Select period", period_options, index=0, label_visibility="collapsed")
@@ -208,7 +208,7 @@ k1, k2, k3, k4 = st.columns(4)
 k1.metric("Total Sessions",  len(df))
 k2.metric("Athletes Active", df["Athlete"].nunique())
 k3.metric("Fastest Time",    f"{fastest_row['_best']:.2f}s", delta=fastest_row["Athlete"], delta_color="off")
-k4.metric("Most Improved",   imp_name, delta=imp_delta, delta_color="inverse")
+k4.metric("Most Gains",   imp_name, delta=imp_delta, delta_color="inverse")
 
 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
@@ -228,7 +228,7 @@ with chart_col1:
     fig1.update_layout(
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-        title=dict(text="Average Time by Athlete", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
+        title=dict(text="Score Breakdown by Athlete", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False, range=[0, roster_df["_avg"].max() * 1.25]),
         yaxis=dict(title=""),
         margin=dict(l=10, r=120, t=70, b=10), height=380,
@@ -249,7 +249,7 @@ with chart_col2:
     fig2.update_layout(
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-        title=dict(text="Performance Trend Over Sessions", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
+        title=dict(text="Progress Over Time", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
         yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
         legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor="rgba(0,0,0,0)", borderwidth=0),
@@ -308,7 +308,7 @@ st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
 # ── Session History ───────────────────────────────────────────────────────────
 with st.container(border=True):
-    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Session History by Athlete</p>', unsafe_allow_html=True)
+    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Training Log</p>', unsafe_allow_html=True)
     cols = st.columns(len(athlete_order))
     for col, athlete in zip(cols, athlete_order):
         adf = df[df["Athlete"] == athlete].sort_values("event_time")
@@ -320,7 +320,7 @@ with st.container(border=True):
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-with st.expander("Raw Results Data"):
+with st.expander("I Want to See the Raw Data"):
     st.dataframe(
         df[["event_time","Athlete","StationID","DeviceID","Time","Profile"]]
         .sort_values("event_time", ascending=False).reset_index(drop=True),
