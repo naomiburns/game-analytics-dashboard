@@ -178,6 +178,7 @@ for athlete in sorted(df["Athlete"].unique()):
     sessions = len(times)
     avg_t, best_t, worst_t = float(times.mean()), float(times.min()), float(times.max())
     station = adf["StationID"].iloc[0]
+    profile_num = station.split("_")[-1] if "_" in station else station
     if sessions >= 2:
         mid = sessions // 2
         trend = round(float(times[mid:].mean()) - float(times[:mid].mean()), 2)
@@ -185,7 +186,7 @@ for athlete in sorted(df["Athlete"].unique()):
         trend = 0.0
     trend_display = "↑ 0.00" if sessions < 2 else (f"↓ {abs(trend):.2f}" if trend < 0 else f"↑ {abs(trend):.2f}")
     rows.append({
-        "Athlete": athlete, "StationID": station, "Sessions": sessions,
+        "Athlete": athlete, "StationID": station, "Profile": profile_num, "Sessions": sessions,
         "Avg Time": f"{avg_t:.2f}", "Best Time": f"{best_t:.2f}", "Worst Time": f"{worst_t:.2f}",
         "Trend": trend_display,
         "_avg": avg_t, "_best": best_t, "_trend": trend, "_sessions": sessions,
@@ -267,7 +268,7 @@ with st.container(border=True):
         if val.startswith("↓"): return f"color:{TEAL};font-weight:600"
         if val.startswith("↑") and "0.00" not in val: return f"color:{CORAL};font-weight:600"
         return "color:#cccccc;font-weight:400"
-    display_cols = ["Athlete","StationID","Sessions","Avg Time","Best Time","Worst Time","Trend"]
+    display_cols = ["Athlete","Profile","Sessions","Avg Time","Best Time","Worst Time","Trend"]
     st.dataframe(roster_df[display_cols].style.map(style_trend, subset=["Trend"]), use_container_width=True, hide_index=True)
     st.markdown('<p style="font-size:0.75rem;color:#888;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</p>', unsafe_allow_html=True)
 
