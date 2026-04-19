@@ -325,16 +325,57 @@ st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
 # ── My Roster (sorted by profile number) ─────────────────────────────────────
 with st.container(border=True):
-    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">My Roster</p>', unsafe_allow_html=True)
-    def style_trend(val):
-        if not val or val == "—": return "color:#cccccc;font-weight:400"
-        if val.startswith("↓"): return f"color:{TEAL};font-weight:600"
-        if val.startswith("↑") and "0.00" not in val: return f"color:{CORAL};font-weight:600"
-        return "color:#cccccc;font-weight:400"
-    display_cols = ["Athlete","Profile","Sessions","Avg Time","Best Time","Worst Time","Trend"]
-    sorted_roster = roster_df.sort_values("_profile_num")[display_cols]
-    st.dataframe(sorted_roster.style.map(style_trend, subset=["Trend"]), use_container_width=True, hide_index=True, height=(len(roster_df) + 1) * 35 + 10)
-    st.markdown('<p style="font-size:0.75rem;color:#888;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</p>', unsafe_allow_html=True)
+    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:16px;">My Roster</p>', unsafe_allow_html=True)
+    
+    sorted_roster = roster_df.sort_values("_profile_num")
+    
+    # Table header
+    st.markdown(f"""
+<div style="display:grid;grid-template-columns:4px 140px 60px 90px 90px 90px 80px;gap:0;border-bottom:1.5px solid #e0e0e0;padding-bottom:8px;margin-bottom:4px;">
+    <div></div>
+    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Athlete</div>
+    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Reps</div>
+    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Best Time</div>
+    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Avg Time</div>
+    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Worst Time</div>
+    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Trend</div>
+</div>
+""", unsafe_allow_html=True)
+
+    for _, row in sorted_roster.iterrows():
+        is_active = row["_sessions"] > 0
+        bar_color = TEAL if is_active else "#dddddd"
+        opacity = "1" if is_active else "0.45"
+        best = row["Best Time"] if is_active else "—"
+        avg = row["Avg Time"] if is_active else "—"
+        worst = row["Worst Time"] if is_active else "—"
+        trend = row["Trend"] if is_active else "—"
+        
+        if trend.startswith("↓"):
+            trend_color = TEAL
+        elif trend.startswith("↑") and "0.00" not in trend:
+            trend_color = CORAL
+        else:
+            trend_color = "#aaaaaa"
+        
+        best_color = TEAL if is_active else "#aaaaaa"
+        
+        st.markdown(f"""
+<div style="display:grid;grid-template-columns:4px 140px 60px 90px 90px 90px 80px;gap:0;align-items:center;padding:10px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">
+    <div style="width:4px;height:36px;background:{bar_color};border-radius:2px;"></div>
+    <div>
+        <div style="font-weight:600;font-size:0.9rem;color:#1a1a2e;">{row["Athlete"]}</div>
+        <div style="font-size:0.75rem;color:#888;">Profile {row["Profile"]}</div>
+    </div>
+    <div style="font-size:0.9rem;color:#1a1a2e;">{row["Sessions"]}</div>
+    <div style="font-size:0.9rem;font-weight:600;color:{best_color};">{best}</div>
+    <div style="font-size:0.9rem;color:#1a1a2e;">{avg}</div>
+    <div style="font-size:0.9rem;color:#1a1a2e;">{worst}</div>
+    <div style="font-size:0.9rem;font-weight:600;color:{trend_color};">{trend}</div>
+</div>
+""", unsafe_allow_html=True)
+    
+    st.markdown('<p style="font-size:0.75rem;color:#888;margin-top:12px;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</p>', unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
