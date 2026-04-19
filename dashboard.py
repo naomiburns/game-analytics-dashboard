@@ -96,9 +96,9 @@ for athlete in sorted(df["Athlete"].unique()):
     adf = df[df["Athlete"] == athlete].sort_values("event_time")
     times = adf["Time"].values
     sessions = len(times)
-    avg_t = round(float(times.mean()), 2)
-    best_t = round(float(times.min()), 2)
-    worst_t = round(float(times.max()), 2)
+    avg_t = f"{float(times.mean()):.2f}"
+    best_t = f"{float(times.min()):.2f}"
+    worst_t = f"{float(times.max()):.2f}"
     station = adf["StationID"].iloc[0]
 
     if sessions >= 2:
