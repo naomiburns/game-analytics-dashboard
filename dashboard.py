@@ -52,6 +52,10 @@ span[data-baseweb="tag"] {{
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
     padding: 8px !important;
 }}
+[data-testid="stVerticalBlockBorderWrapper"] > div > div {{
+    background-color: #ffffff !important;
+    border-radius: 16px !important;
+}}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
 </style>
