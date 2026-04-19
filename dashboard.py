@@ -212,9 +212,9 @@ with chart_col1:
         title=dict(text="Average Time by Athlete", font=dict(size=15, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
         yaxis=dict(title=""),
-        margin=dict(l=10, r=60, t=44, b=10), height=340,
+        margin=dict(l=10, r=60, t=44, b=10), height=400,
     )
-    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig1, use_container_width=True, config={"scrollZoom": False, "displayModeBar": False})
 
 with chart_col2:
     fig2 = go.Figure()
@@ -234,10 +234,10 @@ with chart_col2:
         xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
         yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
         legend=dict(bgcolor="#ffffff", bordercolor="#eeeeee", borderwidth=1),
-        margin=dict(l=10, r=10, t=44, b=10), height=340,
+        margin=dict(l=10, r=10, t=44, b=10), height=400,
         hovermode="x unified",
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True, config={"scrollZoom": False, "displayModeBar": False})
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
