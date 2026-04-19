@@ -50,23 +50,30 @@ div[data-testid="stRadio"] > div {{
     display: flex; flex-direction: column; gap: 6px;
 }}
 div[data-testid="stRadio"] label {{
-    background: #f0f2f6;
-    border: 1.5px solid #e0e0e0;
+    background: rgba(65,234,212,0.08) !important;
+    border: 1.5px solid rgba(65,234,212,0.35) !important;
     border-radius: 20px !important;
-    padding: 6px 16px !important;
-    font-size: 0.82rem !important;
+    padding: 7px 18px !important;
+    font-size: 0.85rem !important;
     font-weight: 600 !important;
+    color: #1a1a2e !important;
     cursor: pointer;
     transition: all 0.15s;
     text-transform: none !important;
     letter-spacing: 0 !important;
 }}
 div[data-testid="stRadio"] label:has(input:checked) {{
-    background: {TEAL} !important;
+    background: rgba(65,234,212,0.25) !important;
     border-color: {TEAL} !important;
     color: #1a1a2e !important;
 }}
-div[data-testid="stRadio"] input {{ display: none !important; }}
+div[data-testid="stRadio"] label:has(input:checked) div[data-testid="stMarkdownContainer"] p {{
+    color: #1a1a2e !important;
+}}
+/* Make the radio dot teal */
+div[data-testid="stRadio"] input {{
+    accent-color: {TEAL} !important;
+}}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
 .block-container {{ padding-top: 2rem !important; }}
@@ -125,7 +132,7 @@ with st.sidebar:
     selected_devices = st.multiselect("Team (DeviceID)", all_devices, default=all_devices)
     st.markdown("**Date Range**")
     period_options = ["7 Days", "14 Days", "30 Days", "3 Months", "6 Months"]
-    selected_period = st.radio("", period_options, index=0, horizontal=False)
+    selected_period = st.radio("Select period", period_options, index=0, horizontal=False, label_visibility="collapsed")
     period_map = {
         "7 Days":   (timedelta(days=6),   "Last 7 Days"),
         "14 Days":  (timedelta(days=13),  "Last 14 Days"),
