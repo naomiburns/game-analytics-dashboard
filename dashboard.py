@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
-st.set_page_config(page_title="Team Roster Analytics", page_icon="🏃", layout="wide")
+st.set_page_config(page_title="Team Roster Analytics", layout="wide")
 
 st.markdown("""
 <style>
@@ -50,7 +50,7 @@ def load_data():
 
 df_raw = load_data()
 
-st.title("🏃 Team Roster Dashboard")
+st.title("Team Roster Dashboard")
 st.caption("Tracking athlete performance by StationID · Lower time = faster = better")
 st.divider()
 
@@ -59,7 +59,7 @@ if df_raw.empty:
     st.stop()
 
 with st.sidebar:
-    st.header("⚙️ Filters")
+    st.header("Filters")
     all_devices = sorted(df_raw["DeviceID"].unique())
     selected_devices = st.multiselect("Team (DeviceID)", all_devices, default=all_devices)
     max_date = df_raw["event_time"].max().date()
@@ -86,12 +86,11 @@ k1, k2, k3, k4 = st.columns(4)
 k1.metric("Total Sessions", len(df))
 k2.metric("Athletes Tracked", df["StationID"].nunique())
 k3.metric("Teams", df["DeviceID"].nunique())
-k4.metric("Avg Time (s)", f"{df['Time'].mean():.2f}")
+k4.metric("Avg Time", f"{df['Time'].mean():.2f}")
 st.divider()
 
-st.subheader("📋 Athlete Roster")
+st.subheader("My Roster")
 
-# Build roster manually to avoid pandas groupby issues
 rows = []
 for athlete in sorted(df["Athlete"].unique()):
     adf = df[df["Athlete"] == athlete].sort_values("event_time")
@@ -101,13 +100,11 @@ for athlete in sorted(df["Athlete"].unique()):
     best_t = round(float(times.min()), 2)
     worst_t = round(float(times.max()), 2)
     station = adf["StationID"].iloc[0]
-    device = adf["DeviceID"].iloc[0]
 
-    # Trend: compare first half avg vs second half avg
     if sessions >= 2:
         mid = sessions // 2
         trend = round(float(times[mid:].mean()) - float(times[:mid].mean()), 3)
-        trend_str = f"{trend:+.3f}s"
+        trend_str = f"{trend:+.3f}"
     else:
         trend = None
         trend_str = "—"
@@ -115,13 +112,11 @@ for athlete in sorted(df["Athlete"].unique()):
     rows.append({
         "Athlete": athlete,
         "StationID": station,
-        "Team (DeviceID)": device,
         "Sessions": sessions,
-        "Avg Time (s)": avg_t,
-        "Best Time (s)": best_t,
-        "Worst Time (s)": worst_t,
-        "Trend (s)": trend_str,
-        "_trend_val": trend,
+        "Avg Time": avg_t,
+        "Best Time": best_t,
+        "Worst Time": worst_t,
+        "Trend": trend_str,
     })
 
 roster_df = pd.DataFrame(rows)
@@ -130,7 +125,7 @@ def style_trend(val):
     if val == "—":
         return "color: #888"
     try:
-        num = float(val.replace("s", ""))
+        num = float(val)
         if num < 0:
             return "color: #2ea043; font-weight: 600"
         elif num > 0:
@@ -139,14 +134,12 @@ def style_trend(val):
         pass
     return ""
 
-display_cols = ["Athlete", "StationID", "Team (DeviceID)", "Sessions",
-                "Avg Time (s)", "Best Time (s)", "Worst Time (s)", "Trend (s)"]
-styled = roster_df[display_cols].style.map(style_trend, subset=["Trend (s)"])
+styled = roster_df.style.map(style_trend, subset=["Trend"])
 st.dataframe(styled, use_container_width=True, hide_index=True)
-st.caption("💚 Negative trend = getting faster (good!)  ·  ❤️ Positive trend = getting slower")
+st.caption("Negative trend = getting faster (good)  ·  Positive trend = getting slower")
 st.divider()
 
-st.subheader("📈 Session History by Athlete")
+st.subheader("Session History by Athlete")
 athletes = sorted(df["Athlete"].unique())
 cols = st.columns(len(athletes))
 for col, athlete in zip(cols, athletes):
@@ -159,7 +152,7 @@ for col, athlete in zip(cols, athletes):
 
 st.divider()
 
-with st.expander("🔍 Raw Results Data"):
+with st.expander("Raw Results Data"):
     st.dataframe(
         df[["event_time", "Athlete", "StationID", "DeviceID", "Time", "Profile"]]
         .sort_values("event_time", ascending=False)
