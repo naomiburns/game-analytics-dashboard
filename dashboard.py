@@ -14,20 +14,9 @@ TEAL    = "#41EAD4"
 PALETTE = [CORAL, TEAL, POLLEN, SLATE, "#A78BFA", "#F97316", "#38BDF8", "#FB7185",
            "#34D399", "#F472B6", "#60A5FA", "#FBBF24"]
 
-# 12 dummy names for profiles 1-12
 PROFILE_NAMES = {
-    1:  "Jane",
-    2:  "Jill",
-    3:  "Sophie",
-    4:  "Ellie",
-    5:  "Alex",
-    6:  "Maya",
-    7:  "Zoe",
-    8:  "Ava",
-    9:  "Mia",
-    10: "Lily",
-    11: "Grace",
-    12: "Chloe",
+    1:"Jane", 2:"Jill", 3:"Sophie", 4:"Ellie", 5:"Alex", 6:"Maya",
+    7:"Zoe", 8:"Ava", 9:"Mia", 10:"Lily", 11:"Grace", 12:"Chloe",
 }
 TOTAL_PROFILES = 12
 
@@ -79,7 +68,6 @@ div[data-testid="stRadio"] label:has(input:checked) {{
 div[data-testid="stRadio"] input {{ accent-color: {TEAL} !important; }}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] {{ border-radius: 12px !important; overflow: hidden !important; }}
-[data-testid="stDataFrame"] > div {{ border-radius: 12px !important; }}
 .stPlotlyChart {{
     border-radius: 16px !important;
     border: 1.5px solid #cccccc !important;
@@ -127,12 +115,12 @@ df_raw = load_data()
 
 CARD = "background:#ffffff;border-radius:16px;padding:28px 32px 20px 32px;box-shadow:0 1px 4px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.04);margin-bottom:20px;"
 
-st.markdown(f"""
+st.markdown(f'''
 <div style="{CARD}">
     <div style="font-size:2.3rem;font-weight:700;color:#1a1a2e;letter-spacing:-0.03em;">Ver Vision Training Dashboard</div>
-    <div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Your athletes are logging vision training reps through the Ver app. Monitor who's showing up, how often, and whether their reaction times are improving.</div>
+    <div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Your athletes are logging vision training reps through the Ver app. Monitor who is showing up, how often, and whether their reaction times are improving.</div>
 </div>
-""", unsafe_allow_html=True)
+''', unsafe_allow_html=True)
 
 if df_raw.empty:
     st.warning("No Results events found in live_events.json.")
@@ -167,78 +155,61 @@ if df.empty:
     st.info("No data for the selected filters.")
     st.stop()
 
-# ── Build full roster (all 12 profiles) ──────────────────────────────────────
+# ── Build full roster ──────────────────────────────────────────────────────────
 rows = []
-active_profiles = df["ProfileNum"].unique() if not df.empty else []
-
 for profile_num in range(1, TOTAL_PROFILES + 1):
     athlete = PROFILE_NAMES.get(profile_num, f"Athlete {profile_num}")
     adf = df[df["ProfileNum"] == profile_num].sort_values("event_time")
     times = adf["Time"].values
     sessions = len(times)
-
     if sessions > 0:
-        avg_t   = float(times.mean())
-        best_t  = float(times.min())
-        worst_t = float(times.max())
+        avg_t, best_t, worst_t = float(times.mean()), float(times.min()), float(times.max())
         if sessions >= 2:
-            mid   = sessions // 2
+            mid = sessions // 2
             trend = round(float(times[mid:].mean()) - float(times[:mid].mean()), 2)
         else:
             trend = 0.0
-        trend_display = "↑ 0.00" if sessions < 2 else (f"↓ {abs(trend):.2f}" if trend < 0 else f"↑ {abs(trend):.2f}")
-        avg_str   = f"{avg_t:.2f}"
-        best_str  = f"{best_t:.2f}"
-        worst_str = f"{worst_t:.2f}"
+        trend_display = "up_zero" if sessions < 2 else ("down" if trend < 0 else "up")
+        trend_str = "↑ 0.00" if sessions < 2 else (f"↓ {abs(trend):.2f}" if trend < 0 else f"↑ {abs(trend):.2f}")
+        avg_str, best_str, worst_str = f"{avg_t:.2f}", f"{best_t:.2f}", f"{worst_t:.2f}"
     else:
         avg_t = best_t = worst_t = trend = 0.0
-        trend_display = "—"
+        trend_display = "none"
+        trend_str = "—"
         avg_str = best_str = worst_str = "—"
-
     rows.append({
-        "Athlete":    athlete,
-        "Profile":    str(profile_num),
-        "_profile_num": profile_num,
-        "Sessions":   sessions,
-        "Avg Time":   avg_str,
-        "Best Time":  best_str,
-        "Worst Time": worst_str,
-        "Trend":      trend_display,
-        "_avg":       avg_t,
-        "_best":      best_t,
-        "_trend":     trend,
-        "_sessions":  sessions,
+        "Athlete": athlete, "Profile": str(profile_num), "_profile_num": profile_num,
+        "Sessions": sessions, "Avg Time": avg_str, "Best Time": best_str, "Worst Time": worst_str,
+        "Trend": trend_str, "_trend_type": trend_display,
+        "_avg": avg_t, "_best": best_t, "_trend": trend, "_sessions": sessions,
     })
-
 roster_df = pd.DataFrame(rows)
 active_roster = roster_df[roster_df["_sessions"] > 0]
 
 # ── KPIs ──────────────────────────────────────────────────────────────────────
 fastest_row = active_roster.loc[active_roster["_best"].idxmin()] if not active_roster.empty else None
-has_trend   = active_roster[active_roster["_sessions"] >= 2]
+has_trend = active_roster[active_roster["_sessions"] >= 2]
 if not has_trend.empty:
-    best_imp  = has_trend.loc[has_trend["_trend"].idxmin()]
-    imp_name  = best_imp["Athlete"]
-    imp_delta = f"{best_imp['_trend']:+.2f}s"
+    best_imp = has_trend.loc[has_trend["_trend"].idxmin()]
+    imp_name, imp_delta = best_imp["Athlete"], f"{best_imp['_trend']:+.2f}s"
 else:
     imp_name, imp_delta = "No Data", None
 
 st.markdown(f'<div style="font-size:1.1rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;">{period_label}</div>', unsafe_allow_html=True)
 k1, k2, k3, k4 = st.columns(4)
-k1.metric("Total Sessions",  len(df))
+k1.metric("Total Sessions", len(df))
 k2.metric("Athletes Active", len(active_roster))
-k3.metric("Fastest Time",    f"{fastest_row['_best']:.2f}s" if fastest_row is not None else "—",
+k3.metric("Fastest Time", f"{fastest_row['_best']:.2f}s" if fastest_row is not None else "—",
           delta=fastest_row["Athlete"] if fastest_row is not None else None, delta_color="off")
 k4.metric("Most Gains", imp_name, delta=imp_delta, delta_color="inverse")
 
 st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
 
-# ── Charts ────────────────────────────────────────────────────────────────────
+# ── Charts ─────────────────────────────────────────────────────────────────────
 athlete_order = active_roster.sort_values("_avg")["Athlete"].tolist()
 color_map = {PROFILE_NAMES[i]: PALETTE[(i-1) % len(PALETTE)] for i in range(1, TOTAL_PROFILES+1)}
 
 chart_col1, chart_col2 = st.columns(2)
-
 with chart_col1:
     bar_df = active_roster.sort_values("_avg", ascending=True)
     fig1 = go.Figure(go.Bar(
@@ -251,7 +222,7 @@ with chart_col1:
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
         title=dict(text="Score Breakdown by Athlete", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False,
-                   range=[0, active_roster["_avg"].max() * 1.25] if not active_roster.empty else [0, 100]),
+                   range=[0, active_roster["_avg"].max() * 1.25] if not active_roster.empty else [0,100]),
         yaxis=dict(title=""),
         margin=dict(l=10, r=120, t=70, b=10), height=380,
     )
@@ -260,8 +231,8 @@ with chart_col1:
 with chart_col2:
     fig2 = go.Figure()
     for athlete in athlete_order:
-        profile_num = next(k for k, v in PROFILE_NAMES.items() if v == athlete)
-        adf = df[df["ProfileNum"] == profile_num].sort_values("event_time").reset_index(drop=True)
+        pnum = next(k for k, v in PROFILE_NAMES.items() if v == athlete)
+        adf = df[df["ProfileNum"] == pnum].sort_values("event_time").reset_index(drop=True)
         adf["session_num"] = range(1, len(adf) + 1)
         fig2.add_trace(go.Scatter(
             x=adf["session_num"], y=adf["Time"], mode="lines+markers", name=athlete,
@@ -283,112 +254,110 @@ with chart_col2:
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-# ── Give em a Nudge ───────────────────────────────────────────────────────────
+# ── Give em a Nudge + My Roster side by side ──────────────────────────────────
 nudge_athletes = []
 for _, row in roster_df.iterrows():
     reasons = []
     if row["_sessions"] == 0:
         reasons.append("No sessions logged yet")
     else:
-        # Check if last session was more than 7 days ago
-        profile_num = row["_profile_num"]
-        adf = df[df["ProfileNum"] == profile_num]
-        if not adf.empty:
-            last_session = adf["event_time"].max().date()
-            days_since = (end_date - last_session).days
+        pnum = row["_profile_num"]
+        pdf = df[df["ProfileNum"] == pnum]
+        if not pdf.empty:
+            days_since = (end_date - pdf["event_time"].max().date()).days
             if days_since > 7:
                 reasons.append(f"Last session {days_since} days ago")
     if reasons:
         nudge_athletes.append({"Athlete": row["Athlete"], "Profile": row["Profile"], "Reasons": reasons})
 
-with st.container(border=True):
-    st.markdown("<p style=\"font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;\">Give 'em a Nudge</p>", unsafe_allow_html=True)
-    st.markdown("<p style=\"font-size:0.85rem;color:#888;margin-bottom:12px;\">These athletes could use a little encouragement to get their reps in.</p>", unsafe_allow_html=True)
-    if not nudge_athletes:
-        st.markdown(f'<p style="color:{TEAL};font-weight:600;">&#10003; Everyone is on track — great work!</p>', unsafe_allow_html=True)
-    else:
-        # Show in rows of 6
-        for i in range(0, len(nudge_athletes), 6):
-            chunk = nudge_athletes[i:i+6]
-            cols = st.columns(6)
-            for col, athlete in zip(cols, chunk):
-                with col:
-                    st.markdown(f"""
-<div style="background:rgba(255,111,89,0.08);border:1.5px solid rgba(255,111,89,0.3);border-radius:12px;padding:10px 12px;margin-bottom:8px;">
-    <div style="font-weight:700;font-size:0.88rem;color:#1a1a2e;margin-bottom:2px;">{athlete['Athlete']}</div>
-    <div style="font-size:0.72rem;color:#888;margin-bottom:6px;">Profile {athlete['Profile']}</div>
-    {"".join(f'<div style="font-size:0.75rem;color:{CORAL};margin-bottom:2px;">· {r}</div>' for r in athlete["Reasons"])}
-</div>
-""", unsafe_allow_html=True)
+nudge_col, roster_col = st.columns(2)
 
-st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
-
-# ── My Roster (sorted by profile number) ─────────────────────────────────────
-with st.container(border=True):
-    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:16px;">My Roster</p>', unsafe_allow_html=True)
-    
-    sorted_roster = roster_df.sort_values("_profile_num")
-    
-    # Table header
-    st.markdown(f"""
-<div style="display:grid;grid-template-columns:4px 140px 60px 90px 90px 90px 80px;gap:0;border-bottom:1.5px solid #e0e0e0;padding-bottom:8px;margin-bottom:4px;">
-    <div></div>
-    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Athlete</div>
-    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Reps</div>
-    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Best Time</div>
-    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Avg Time</div>
-    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Worst Time</div>
-    <div style="font-size:0.75rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Trend</div>
-</div>
-""", unsafe_allow_html=True)
-
-    for _, row in sorted_roster.iterrows():
-        is_active = row["_sessions"] > 0
-        bar_color = TEAL if is_active else "#dddddd"
-        opacity = "1" if is_active else "0.45"
-        best = row["Best Time"] if is_active else "—"
-        avg = row["Avg Time"] if is_active else "—"
-        worst = row["Worst Time"] if is_active else "—"
-        trend = row["Trend"] if is_active else "—"
-        
-        if trend.startswith("↓"):
-            trend_color = TEAL
-        elif trend.startswith("↑") and "0.00" not in trend:
-            trend_color = CORAL
+with nudge_col:
+    with st.container(border=True):
+        st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Give \'em a Nudge</p>', unsafe_allow_html=True)
+        st.markdown('<p style="font-size:0.82rem;color:#888;margin-bottom:12px;">These athletes could use a little encouragement to get their reps in.</p>', unsafe_allow_html=True)
+        if not nudge_athletes:
+            st.markdown(f'<p style="color:{TEAL};font-weight:600;">&#10003; Everyone is on track!</p>', unsafe_allow_html=True)
         else:
-            trend_color = "#aaaaaa"
-        
-        best_color = TEAL if is_active else "#aaaaaa"
-        
-        st.markdown(f"""
-<div style="display:grid;grid-template-columns:4px 160px 50px 90px 90px 90px 80px;gap:0;align-items:center;padding:8px 0 8px 8px;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">
-    <div style="width:3px;height:20px;background:{bar_color};border-radius:2px;margin-right:8px;"></div>
-    <div style="font-weight:600;font-size:0.88rem;color:#1a1a2e;">{row["Athlete"]} <span style="font-weight:400;color:#aaa;font-size:0.78rem;">P{row["Profile"]}</span></div>
-    <div style="font-size:0.88rem;color:#1a1a2e;">{row["Sessions"]}</div>
-    <div style="font-size:0.88rem;font-weight:600;color:{best_color};">{best}</div>
-    <div style="font-size:0.88rem;color:#1a1a2e;">{avg}</div>
-    <div style="font-size:0.88rem;color:#1a1a2e;">{worst}</div>
-    <div style="font-size:0.88rem;font-weight:600;color:{trend_color};">{trend}</div>
-</div>
-""", unsafe_allow_html=True)
-    
-    st.markdown('<p style="font-size:0.75rem;color:#888;margin-top:12px;">↓ Trend = getting faster (good) &nbsp;·&nbsp; ↑ Trend = getting slower</p>', unsafe_allow_html=True)
+            for i in range(0, len(nudge_athletes), 3):
+                chunk = nudge_athletes[i:i+3]
+                ncols = st.columns(3)
+                for ncol, ath in zip(ncols, chunk):
+                    with ncol:
+                        reasons_html = "".join(
+                            f'<div style="font-size:0.7rem;color:{CORAL};">· {r}</div>'
+                            for r in ath["Reasons"]
+                        )
+                        st.markdown(
+                            f'<div style="background:rgba(255,111,89,0.08);border:1.5px solid rgba(255,111,89,0.3);border-radius:10px;padding:8px 10px;margin-bottom:6px;">'
+                            f'<div style="font-weight:700;font-size:0.82rem;color:#1a1a2e;margin-bottom:1px;">{ath["Athlete"]}</div>'
+                            f'<div style="font-size:0.68rem;color:#888;margin-bottom:4px;">P{ath["Profile"]}</div>'
+                            f'{reasons_html}</div>',
+                            unsafe_allow_html=True
+                        )
+
+with roster_col:
+    with st.container(border=True):
+        st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;">My Roster</p>', unsafe_allow_html=True)
+        sorted_roster = roster_df.sort_values("_profile_num")
+        header_style = "font-size:0.72rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
+        st.markdown(
+            f'<div style="display:grid;grid-template-columns:4px 130px 45px 75px 75px 75px 65px;gap:0;border-bottom:1.5px solid #e0e0e0;padding-bottom:8px;margin-bottom:4px;">'
+            f'<div></div>'
+            f'<div style="{header_style}">Athlete</div>'
+            f'<div style="{header_style}">Reps</div>'
+            f'<div style="{header_style}">Best</div>'
+            f'<div style="{header_style}">Avg</div>'
+            f'<div style="{header_style}">Worst</div>'
+            f'<div style="{header_style}">Trend</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+        for _, row in sorted_roster.iterrows():
+            is_active = row["_sessions"] > 0
+            bar_color = TEAL if is_active else "#dddddd"
+            opacity = "1" if is_active else "0.45"
+            best = row["Best Time"] if is_active else "—"
+            avg = row["Avg Time"] if is_active else "—"
+            worst = row["Worst Time"] if is_active else "—"
+            trend_str = row["Trend"] if is_active else "—"
+            tt = row["_trend_type"]
+            trend_color = TEAL if tt == "down" else (CORAL if tt == "up" else "#aaaaaa")
+            best_color = TEAL if is_active else "#aaaaaa"
+            st.markdown(
+                f'<div style="display:grid;grid-template-columns:4px 130px 45px 75px 75px 75px 65px;gap:0;align-items:center;padding:6px 0 6px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">'
+                f'<div style="width:3px;height:20px;background:{bar_color};border-radius:2px;"></div>'
+                f'<div style="font-weight:600;font-size:0.83rem;color:#1a1a2e;padding-left:6px;">{row["Athlete"]} <span style="font-weight:400;color:#aaa;font-size:0.73rem;">P{row["Profile"]}</span></div>'
+                f'<div style="font-size:0.83rem;color:#1a1a2e;">{row["Sessions"]}</div>'
+                f'<div style="font-size:0.83rem;font-weight:600;color:{best_color};">{best}</div>'
+                f'<div style="font-size:0.83rem;color:#1a1a2e;">{avg}</div>'
+                f'<div style="font-size:0.83rem;color:#1a1a2e;">{worst}</div>'
+                f'<div style="font-size:0.83rem;font-weight:600;color:{trend_color};">{trend_str}</div>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+        st.markdown('<p style="font-size:0.72rem;color:#888;margin-top:10px;">↓ faster (good) &nbsp;·&nbsp; ↑ slower</p>', unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
-# ── Training Log (sorted by profile number) ───────────────────────────────────
+# ── Training Log ───────────────────────────────────────────────────────────────
 with st.container(border=True):
     st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;">Training Log</p>', unsafe_allow_html=True)
     sorted_profiles = sorted([p for p in range(1, TOTAL_PROFILES+1) if p in df["ProfileNum"].values])
-    cols = st.columns(len(sorted_profiles)) if sorted_profiles else st.columns(1)
-    for col, profile_num in zip(cols, sorted_profiles):
-        athlete = PROFILE_NAMES.get(profile_num, f"Athlete {profile_num}")
-        adf = df[df["ProfileNum"] == profile_num].sort_values("event_time")
-        with col:
-            st.markdown(f"**{athlete}**")
-            st.caption(f"Profile {profile_num}")
-            for _, row in adf.iterrows():
-                st.markdown(f"**{row['event_time'].strftime('%m/%d')}** &nbsp; <span style='background:rgba(65,234,212,0.12);border:1.5px solid #41EAD4;border-radius:20px;padding:3px 12px;font-weight:600;font-size:0.85rem;color:#1a1a2e;'>{row['Time']:.2f}s</span>", unsafe_allow_html=True)
+    if sorted_profiles:
+        cols = st.columns(len(sorted_profiles))
+        for col, profile_num in zip(cols, sorted_profiles):
+            athlete = PROFILE_NAMES.get(profile_num, f"Athlete {profile_num}")
+            adf = df[df["ProfileNum"] == profile_num].sort_values("event_time")
+            with col:
+                st.markdown(f"**{athlete}**")
+                st.caption(f"Profile {profile_num}")
+                for _, row in adf.iterrows():
+                    st.markdown(
+                        f'**{row["event_time"].strftime("%m/%d")}** &nbsp; '
+                        f'<span style="background:rgba(65,234,212,0.12);border:1.5px solid #41EAD4;border-radius:20px;padding:3px 12px;font-weight:600;font-size:0.85rem;color:#1a1a2e;">{row["Time"]:.2f}s</span>',
+                        unsafe_allow_html=True
+                    )
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
