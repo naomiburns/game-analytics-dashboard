@@ -18,7 +18,7 @@ st.markdown(f"""
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap');
 html, body, [class*="css"] {{ font-family: 'DM Sans', sans-serif; color: #1a1a2e; }}
 .stApp {{ background-color: #f0f2f6; }}
-.block-container {{ padding-top: 2rem !important; padding-left: 3rem !important; padding-right: 3rem !important; }}
+.block-container {{ padding-top: 60px !important; padding-left: 3rem !important; padding-right: 3rem !important; }}
 section[data-testid="stSidebar"] {{ background-color: #ffffff; border-right: 1px solid #e4e5ea; }}
 section[data-testid="stSidebar"] * {{ color: #1a1a2e !important; }}
 section[data-testid="stSidebar"] label {{
