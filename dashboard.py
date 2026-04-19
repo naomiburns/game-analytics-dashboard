@@ -228,9 +228,9 @@ with chart_col1:
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
         title=dict(text="Average Time by Athlete", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
-        xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
+        xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False, range=[0, roster_df["_avg"].max() * 1.25]),
         yaxis=dict(title=""),
-        margin=dict(l=10, r=100, t=70, b=10), height=380,
+        margin=dict(l=10, r=120, t=70, b=10), height=380,
     )
     st.plotly_chart(fig1, use_container_width=True, config={"scrollZoom": False, "displayModeBar": False})
 
@@ -251,7 +251,7 @@ with chart_col2:
         title=dict(text="Performance Trend Over Sessions", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
         yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
-        legend=dict(bgcolor="#ffffff", bordercolor="#eeeeee", borderwidth=1),
+        legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor="rgba(0,0,0,0)", borderwidth=0),
         margin=dict(l=10, r=10, t=70, b=10), height=380,
         hovermode="x unified",
     )
