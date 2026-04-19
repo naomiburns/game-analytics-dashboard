@@ -122,7 +122,7 @@ def rate_of_change(group):
     second_avg = times[mid:].mean()
     return round(second_avg - first_avg, 3)
 
-roc = df.groupby("Athlete").apply(rate_of_change).reset_index()
+roc = df.groupby("Athlete").apply(rate_of_change, include_groups=False).reset_index()
 roc.columns = ["Athlete", "Trend (s)"]
 roster = roster.merge(roc, on="Athlete", how="left")
 roster["Avg_Time"] = roster["Avg_Time"].round(2)
