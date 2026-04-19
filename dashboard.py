@@ -82,7 +82,7 @@ h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] > div {{ border-radius: 12px !important; }}
 .stPlotlyChart {{
     border-radius: 16px !important;
-    border: 1px solid #e4e5ea !important;
+    border: 1.5px solid #1a1a2e !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
     overflow: hidden !important;
 }}
