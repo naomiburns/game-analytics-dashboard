@@ -16,90 +16,42 @@ PALETTE = [CORAL, TEAL, POLLEN, SLATE, "#A78BFA", "#F97316", "#38BDF8", "#FB7185
 st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap');
-
-html, body, [class*="css"] {{
-    font-family: 'DM Sans', sans-serif;
-    color: #1a1a2e;
-}}
-
-/* Light grey app background */
-.stApp {{
-    background-color: #f0f2f6;
-}}
-
-/* Sidebar */
-section[data-testid="stSidebar"] {{
-    background-color: #ffffff;
-    border-right: 1px solid #e4e5ea;
-}}
+html, body, [class*="css"] {{ font-family: 'DM Sans', sans-serif; color: #1a1a2e; }}
+.stApp {{ background-color: #f0f2f6; }}
+section[data-testid="stSidebar"] {{ background-color: #ffffff; border-right: 1px solid #e4e5ea; }}
 section[data-testid="stSidebar"] * {{ color: #1a1a2e !important; }}
 section[data-testid="stSidebar"] label {{
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-    color: #1a1a2e !important;
+    font-size: 0.7rem; text-transform: uppercase;
+    letter-spacing: 0.08em; font-weight: 600; color: #1a1a2e !important;
 }}
-
-/* Metric cards — white floating cards */
 [data-testid="metric-container"] {{
-    background: #ffffff;
-    border: none;
-    border-radius: 14px;
+    background: #ffffff; border: none; border-radius: 14px;
     padding: 20px 24px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
 }}
 [data-testid="stMetricValue"] {{
     font-family: 'DM Mono', monospace !important;
-    color: #1a1a2e !important;
-    font-size: 2.1rem !important;
-    font-weight: 500 !important;
+    color: #1a1a2e !important; font-size: 2.1rem !important; font-weight: 500 !important;
 }}
 [data-testid="stMetricLabel"] {{
-    color: #1a1a2e !important;
-    font-weight: 600 !important;
-    font-size: 0.72rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.08em !important;
+    color: #1a1a2e !important; font-weight: 600 !important;
+    font-size: 0.72rem !important; text-transform: uppercase !important; letter-spacing: 0.08em !important;
 }}
 [data-testid="stMetricDelta"] > div {{
     font-family: 'DM Sans', sans-serif !important;
-    font-size: 0.85rem !important;
-    font-weight: 600 !important;
+    font-size: 0.85rem !important; font-weight: 600 !important;
 }}
-
-/* Pill multiselect tags */
 span[data-baseweb="tag"] {{
-    background-color: {TEAL} !important;
-    border-radius: 20px !important;
-    color: #1a1a2e !important;
-    font-size: 0.78rem !important;
-    font-weight: 600 !important;
+    background-color: {TEAL} !important; border-radius: 20px !important;
+    color: #1a1a2e !important; font-size: 0.78rem !important; font-weight: 600 !important;
 }}
-
-/* White chart / section cards */
 .card {{
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 24px 28px;
+    background: #ffffff; border-radius: 14px; padding: 8px 12px 16px 12px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
     margin-bottom: 20px;
 }}
-.card-title {{
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin-bottom: 16px;
-    letter-spacing: -0.01em;
-}}
-
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
-
-/* Dataframe */
-[data-testid="stDataFrame"] {{
-    border-radius: 10px;
-    overflow: hidden;
-}}
+[data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -135,16 +87,16 @@ df_raw = load_data()
 # ── Gradient header ───────────────────────────────────────────────────────────
 st.markdown("""
 <div style="
-    background: linear-gradient(135deg, #41EAD4 0%, #ffffff 100%);
-    padding: 36px 40px 28px 40px;
+    background: linear-gradient(135deg, #41EAD4 0%, #FFD166 55%, #FF6F59 100%);
+    padding: 40px 44px 32px 44px;
     border-radius: 16px;
     margin-bottom: 28px;
-    box-shadow: 0 2px 12px rgba(65,234,212,0.15);
+    box-shadow: 0 4px 20px rgba(65,234,212,0.2);
 ">
-    <div style="font-size: 2.2rem; font-weight: 700; color: #1a1a2e; letter-spacing: -0.03em;">
+    <div style="font-size: 2.3rem; font-weight: 700; color: #1a1a2e; letter-spacing: -0.03em;">
         Team Roster Dashboard
     </div>
-    <div style="font-size: 0.92rem; color: #1a1a2e; margin-top: 8px; opacity: 0.6;">
+    <div style="font-size: 0.95rem; color: #1a1a2e; margin-top: 8px; opacity: 0.65;">
         Athlete performance tracking &nbsp;·&nbsp; Lower time = faster = better
     </div>
 </div>
@@ -157,18 +109,27 @@ if df_raw.empty:
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("Filters")
+
     all_devices = sorted(df_raw["DeviceID"].unique())
     selected_devices = st.multiselect("Team (DeviceID)", all_devices, default=all_devices)
-    max_date = df_raw["event_time"].max().date()
-    min_date = df_raw["event_time"].min().date()
-    default_start = max_date - timedelta(days=6)
-    start_date, end_date = st.date_input(
-        "Date range",
-        value=[max(min_date, default_start), max_date],
-        min_value=min_date,
-        max_value=max_date
-    )
 
+    st.markdown("**Date Range**")
+    unit = st.radio("Unit", ["Days", "Weeks", "Months"], horizontal=True)
+    if unit == "Days":
+        amount = st.number_input("Amount", min_value=1, max_value=365, value=7)
+        delta = timedelta(days=amount - 1)
+    elif unit == "Weeks":
+        amount = st.number_input("Amount", min_value=1, max_value=52, value=1)
+        delta = timedelta(weeks=amount)
+    else:
+        amount = st.number_input("Amount", min_value=1, max_value=24, value=1)
+        delta = timedelta(days=amount * 30)
+
+    max_date = df_raw["event_time"].max().date()
+    start_date = max_date - delta
+    end_date = max_date
+
+# ── Filter ────────────────────────────────────────────────────────────────────
 df = df_raw[
     (df_raw["DeviceID"].isin(selected_devices)) &
     (df_raw["event_time"].dt.date >= start_date) &
@@ -196,13 +157,10 @@ for athlete in sorted(df["Athlete"].unique()):
         trend = 0.0
     if sessions < 2:
         trend_display = "↑ 0.00"
-        trend_css = "color: #cccccc; font-weight: 400"
     elif trend < 0:
         trend_display = f"↓ {abs(trend):.2f}"
-        trend_css = f"color: {TEAL}; font-weight: 600"
     else:
         trend_display = f"↑ {abs(trend):.2f}"
-        trend_css = f"color: {CORAL}; font-weight: 600"
     rows.append({
         "Athlete":    athlete,
         "StationID":  station,
@@ -248,7 +206,7 @@ color_map = {a: PALETTE[i % len(PALETTE)] for i, a in enumerate(sorted(df["Athle
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    st.markdown('<div class="card"><div class="card-title">Average Time by Athlete</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     bar_df = roster_df.sort_values("_avg", ascending=True)
     fig1 = go.Figure(go.Bar(
         x=bar_df["_avg"],
@@ -263,18 +221,23 @@ with chart_col1:
         textposition="outside",
     ))
     fig1.update_layout(
+        title=dict(
+            text="Average Time by Athlete",
+            font=dict(size=15, family="DM Sans, sans-serif", color="#1a1a2e"),
+            x=0, xref="paper", pad=dict(b=10)
+        ),
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
         xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
         yaxis=dict(title=""),
-        margin=dict(l=10, r=60, t=10, b=10),
+        margin=dict(l=10, r=60, t=40, b=10),
         height=320,
     )
     st.plotly_chart(fig1, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 with chart_col2:
-    st.markdown('<div class="card"><div class="card-title">Performance Trend Over Sessions</div>', unsafe_allow_html=True)
+    st.markdown('<div class="card">', unsafe_allow_html=True)
     fig2 = go.Figure()
     for athlete in athlete_order:
         adf = df[df["Athlete"] == athlete].sort_values("event_time").reset_index(drop=True)
@@ -289,23 +252,29 @@ with chart_col2:
             hovertemplate=f"<b>{athlete}</b><br>Session %{{x}}<br>Time: %{{y:.2f}}s<extra></extra>",
         ))
     fig2.update_layout(
+        title=dict(
+            text="Performance Trend Over Sessions",
+            font=dict(size=15, family="DM Sans, sans-serif", color="#1a1a2e"),
+            x=0, xref="paper", pad=dict(b=10)
+        ),
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
         xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
         yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
         legend=dict(bgcolor="rgba(255,255,255,0.9)", bordercolor="#eeeeee", borderwidth=1),
-        margin=dict(l=10, r=10, t=10, b=10),
+        margin=dict(l=10, r=10, t=40, b=10),
         height=320,
         hovermode="x unified",
     )
-    st.caption("Lines appear once athletes have 2+ sessions")
     st.plotly_chart(fig2, use_container_width=True)
+    st.caption("Lines appear once athletes have 2+ sessions")
     st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
 
 # ── My Roster table ───────────────────────────────────────────────────────────
-st.markdown('<div class="card"><div class="card-title">My Roster</div>', unsafe_allow_html=True)
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.subheader("My Roster")
 
 def style_trend(val):
     if val is None or val == "":
@@ -325,7 +294,8 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
 
 # ── Session history ───────────────────────────────────────────────────────────
-st.markdown('<div class="card"><div class="card-title">Session History by Athlete</div>', unsafe_allow_html=True)
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.subheader("Session History by Athlete")
 cols = st.columns(len(athlete_order))
 for col, athlete in zip(cols, athlete_order):
     adf = df[df["Athlete"] == athlete].sort_values("event_time")
