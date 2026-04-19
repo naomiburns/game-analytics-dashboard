@@ -258,7 +258,39 @@ with chart_col2:
     )
     st.plotly_chart(fig2, use_container_width=True, config={"scrollZoom": False, "displayModeBar": False})
 
+
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+
+# ── Give em a Nudge ───────────────────────────────────────────────────────────
+nudge_athletes = []
+for _, row in roster_df.iterrows():
+    reasons = []
+    if row["_sessions"] == 0:
+        reasons.append("No sessions logged")
+    elif row["_sessions"] == 1:
+        reasons.append("Only 1 session logged")
+    if row["_trend"] > 0 and row["_sessions"] >= 2:
+        reasons.append("Times are slipping")
+    if reasons:
+        nudge_athletes.append({"Athlete": row["Athlete"], "Profile": row["Profile"], "Reasons": reasons})
+
+with st.container(border=True):
+    st.markdown("<p style=\"font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;\">Give 'em a Nudge</p>", unsafe_allow_html=True)
+    st.markdown("<p style=\"font-size:0.85rem;color:#888;margin-bottom:12px;\">These athletes could use a little encouragement to get their reps in.</p>", unsafe_allow_html=True)
+    if not nudge_athletes:
+        st.markdown(f'<p style="color:{TEAL};font-weight:600;">&#10003; Everyone is on track — great work!</p>', unsafe_allow_html=True)
+    else:
+        cols = st.columns(len(nudge_athletes))
+        for col, athlete in zip(cols, nudge_athletes):
+            with col:
+                st.markdown(f"""
+<div style="background:rgba(255,111,89,0.08);border:1.5px solid rgba(255,111,89,0.3);border-radius:12px;padding:14px 16px;">
+    <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;margin-bottom:4px;">{athlete['Athlete']}</div>
+    <div style="font-size:0.75rem;color:#888;margin-bottom:8px;">Profile {athlete['Profile']}</div>
+    {"".join(f'<div style="font-size:0.8rem;color:{CORAL};margin-bottom:3px;">· {r}</div>' for r in athlete["Reasons"])}
+</div>
+""", unsafe_allow_html=True)
+
 
 # ── My Roster ─────────────────────────────────────────────────────────────────
 with st.container(border=True):
