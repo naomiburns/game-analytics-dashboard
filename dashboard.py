@@ -55,8 +55,19 @@ span[data-baseweb="tag"] {{
 }}
 h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] {{ border-radius: 10px; overflow: hidden; }}
-/* Remove default streamlit block padding so cards sit flush */
 .block-container {{ padding-top: 2rem !important; }}
+[data-testid="stVerticalBlockBorderWrapper"] {{
+    background: #ffffff !important;
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
+}}
+[data-testid="stVerticalBlockBorderWrapper"] > div,
+[data-testid="stVerticalBlockBorderWrapper"] > div > div,
+[data-testid="stVerticalBlockBorderWrapper"] > div > div > div {{
+    background: #ffffff !important;
+    border-radius: 16px !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -212,61 +223,59 @@ color_map = {a: PALETTE[i % len(PALETTE)] for i, a in enumerate(sorted(df["Athle
 chart_col1, chart_col2 = st.columns(2)
 
 with chart_col1:
-    st.markdown(f'<div style="{CARD}">', unsafe_allow_html=True)
-    st.markdown('<div style="font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px;">Average Time by Athlete</div>', unsafe_allow_html=True)
-    bar_df = roster_df.sort_values("_avg", ascending=True)
-    fig1 = go.Figure(go.Bar(
-        x=bar_df["_avg"],
-        y=bar_df["Athlete"],
-        orientation="h",
-        marker=dict(
-            color=bar_df["_avg"],
-            colorscale=[[0, TEAL], [0.5, POLLEN], [1, CORAL]],
-            showscale=False,
-        ),
-        text=[f"{v:.2f}s" for v in bar_df["_avg"]],
-        textposition="outside",
-    ))
-    fig1.update_layout(
-        paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
-        font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-        xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
-        yaxis=dict(title=""),
-        margin=dict(l=10, r=60, t=10, b=10),
-        height=320,
-    )
-    st.plotly_chart(fig1, use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<p style="font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px;">Average Time by Athlete</p>', unsafe_allow_html=True)
+        bar_df = roster_df.sort_values("_avg", ascending=True)
+        fig1 = go.Figure(go.Bar(
+            x=bar_df["_avg"],
+            y=bar_df["Athlete"],
+            orientation="h",
+            marker=dict(
+                color=bar_df["_avg"],
+                colorscale=[[0, TEAL], [0.5, POLLEN], [1, CORAL]],
+                showscale=False,
+            ),
+            text=[f"{v:.2f}s" for v in bar_df["_avg"]],
+            textposition="outside",
+        ))
+        fig1.update_layout(
+            paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
+            font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
+            xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
+            yaxis=dict(title=""),
+            margin=dict(l=10, r=60, t=10, b=10),
+            height=320,
+        )
+        st.plotly_chart(fig1, use_container_width=True)
 
 with chart_col2:
-    st.markdown(f'<div style="{CARD}">', unsafe_allow_html=True)
-    st.markdown('<div style="font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px;">Performance Trend Over Sessions</div>', unsafe_allow_html=True)
-    fig2 = go.Figure()
-    for athlete in athlete_order:
-        adf = df[df["Athlete"] == athlete].sort_values("event_time").reset_index(drop=True)
-        adf["session_num"] = range(1, len(adf) + 1)
-        fig2.add_trace(go.Scatter(
-            x=adf["session_num"],
-            y=adf["Time"],
-            mode="lines+markers",
-            name=athlete,
-            line=dict(width=2.5, color=color_map[athlete]),
-            marker=dict(size=9, color=color_map[athlete], line=dict(width=1.5, color="white")),
-            hovertemplate=f"<b>{athlete}</b><br>Session %{{x}}<br>Time: %{{y:.2f}}s<extra></extra>",
-        ))
-    fig2.update_layout(
-        paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
-        font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-        xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
-        yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
-        legend=dict(bgcolor="#ffffff", bordercolor="#eeeeee", borderwidth=1),
-        margin=dict(l=10, r=10, t=10, b=10),
-        height=320,
-        hovermode="x unified",
-    )
-    st.plotly_chart(fig2, use_container_width=True)
-    st.markdown('<div style="font-size: 0.75rem; color: #888; margin-top: -12px;">Lines appear once athletes have 2+ sessions</div>', unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<p style="font-size: 1rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px;">Performance Trend Over Sessions</p>', unsafe_allow_html=True)
+        fig2 = go.Figure()
+        for athlete in athlete_order:
+            adf = df[df["Athlete"] == athlete].sort_values("event_time").reset_index(drop=True)
+            adf["session_num"] = range(1, len(adf) + 1)
+            fig2.add_trace(go.Scatter(
+                x=adf["session_num"],
+                y=adf["Time"],
+                mode="lines+markers",
+                name=athlete,
+                line=dict(width=2.5, color=color_map[athlete]),
+                marker=dict(size=9, color=color_map[athlete], line=dict(width=1.5, color="white")),
+                hovertemplate=f"<b>{athlete}</b><br>Session %{{x}}<br>Time: %{{y:.2f}}s<extra></extra>",
+            ))
+        fig2.update_layout(
+            paper_bgcolor="#ffffff", plot_bgcolor="#ffffff",
+            font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
+            xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
+            yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
+            legend=dict(bgcolor="#ffffff", bordercolor="#eeeeee", borderwidth=1),
+            margin=dict(l=10, r=10, t=10, b=10),
+            height=320,
+            hovermode="x unified",
+        )
+        st.plotly_chart(fig2, use_container_width=True)
+        st.caption("Lines appear once athletes have 2+ sessions")
 
 st.markdown("<div style='margin-top: 8px;'></div>", unsafe_allow_html=True)
 
