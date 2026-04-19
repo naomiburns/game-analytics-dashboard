@@ -361,17 +361,14 @@ with st.container(border=True):
         best_color = TEAL if is_active else "#aaaaaa"
         
         st.markdown(f"""
-<div style="display:grid;grid-template-columns:4px 140px 60px 90px 90px 90px 80px;gap:0;align-items:center;padding:6px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">
-    <div style="width:4px;height:28px;background:{bar_color};border-radius:2px;"></div>
-    <div>
-        <div style="font-weight:600;font-size:0.9rem;color:#1a1a2e;">{row["Athlete"]}</div>
-        <div style="font-size:0.75rem;color:#888;">Profile {row["Profile"]}</div>
-    </div>
-    <div style="font-size:0.9rem;color:#1a1a2e;">{row["Sessions"]}</div>
-    <div style="font-size:0.9rem;font-weight:600;color:{best_color};">{best}</div>
-    <div style="font-size:0.9rem;color:#1a1a2e;">{avg}</div>
-    <div style="font-size:0.9rem;color:#1a1a2e;">{worst}</div>
-    <div style="font-size:0.9rem;font-weight:600;color:{trend_color};">{trend}</div>
+<div style="display:grid;grid-template-columns:4px 160px 50px 90px 90px 90px 80px;gap:0;align-items:center;padding:8px 0 8px 8px;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">
+    <div style="width:3px;height:20px;background:{bar_color};border-radius:2px;margin-right:8px;"></div>
+    <div style="font-weight:600;font-size:0.88rem;color:#1a1a2e;">{row["Athlete"]} <span style="font-weight:400;color:#aaa;font-size:0.78rem;">P{row["Profile"]}</span></div>
+    <div style="font-size:0.88rem;color:#1a1a2e;">{row["Sessions"]}</div>
+    <div style="font-size:0.88rem;font-weight:600;color:{best_color};">{best}</div>
+    <div style="font-size:0.88rem;color:#1a1a2e;">{avg}</div>
+    <div style="font-size:0.88rem;color:#1a1a2e;">{worst}</div>
+    <div style="font-size:0.88rem;font-weight:600;color:{trend_color};">{trend}</div>
 </div>
 """, unsafe_allow_html=True)
     
