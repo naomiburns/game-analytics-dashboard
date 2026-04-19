@@ -361,8 +361,8 @@ with st.container(border=True):
         best_color = TEAL if is_active else "#aaaaaa"
         
         st.markdown(f"""
-<div style="display:grid;grid-template-columns:4px 140px 60px 90px 90px 90px 80px;gap:0;align-items:center;padding:10px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">
-    <div style="width:4px;height:36px;background:{bar_color};border-radius:2px;"></div>
+<div style="display:grid;grid-template-columns:4px 140px 60px 90px 90px 90px 80px;gap:0;align-items:center;padding:6px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">
+    <div style="width:4px;height:28px;background:{bar_color};border-radius:2px;"></div>
     <div>
         <div style="font-weight:600;font-size:0.9rem;color:#1a1a2e;">{row["Athlete"]}</div>
         <div style="font-size:0.75rem;color:#888;">Profile {row["Profile"]}</div>
