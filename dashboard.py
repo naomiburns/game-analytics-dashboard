@@ -82,16 +82,16 @@ h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stDataFrame"] > div {{ border-radius: 12px !important; }}
 .stPlotlyChart {{
     border-radius: 16px !important;
-    border: 1px solid #cccccc !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06) !important;
+    border: 1.5px solid #cccccc !important;
+    box-shadow: none !important;
     overflow: hidden !important;
 }}
 .stPlotlyChart > div {{ overflow: hidden !important; border-radius: 16px !important; }}
 .stPlotlyChart iframe {{ display: block !important; border-radius: 16px !important; }}
 [data-testid="stVerticalBlockBorderWrapper"] {{
     background: #ffffff !important; border-radius: 16px !important;
-    border: 1px solid #cccccc !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06) !important;
+    border: 1.5px solid #cccccc !important;
+    box-shadow: none !important;
 }}
 [data-testid="stVerticalBlockBorderWrapper"] > div,
 [data-testid="stVerticalBlockBorderWrapper"] > div > div {{
