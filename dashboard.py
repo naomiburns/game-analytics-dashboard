@@ -18,7 +18,7 @@ st.markdown(f"""
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap');
 html, body, [class*="css"] {{ font-family: 'DM Sans', sans-serif; color: #1a1a2e; }}
 .stApp {{ background-color: #f0f2f6; }}
-.block-container {{ padding-top: 3.5rem !important; padding-left: 3.5rem !important; padding-right: 3.5rem !important; }}
+.block-container {{ padding-top: 2rem !important; padding-left: 3rem !important; padding-right: 3rem !important; }}
 section[data-testid="stSidebar"] {{ background-color: #ffffff; border-right: 1px solid #e4e5ea; }}
 section[data-testid="stSidebar"] * {{ color: #1a1a2e !important; }}
 section[data-testid="stSidebar"] label {{
@@ -71,6 +71,15 @@ h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
     border-radius: 16px !important;
     border: 1px solid #e4e5ea !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04) !important;
+    overflow: hidden !important;
+}}
+.stPlotlyChart > div {{
+    overflow: hidden !important;
+    border-radius: 16px !important;
+}}
+.stPlotlyChart iframe {{
+    display: block !important;
+    border-radius: 16px !important;
 }}
 /* White containers for table and session history */
 [data-testid="stVerticalBlockBorderWrapper"] {{
@@ -221,7 +230,7 @@ with chart_col1:
         title=dict(text="Average Time by Athlete", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
         yaxis=dict(title=""),
-        margin=dict(l=10, r=70, t=70, b=10), height=400,
+        margin=dict(l=10, r=70, t=70, b=10), height=380,
     )
     st.plotly_chart(fig1, use_container_width=True, config={"scrollZoom": False, "displayModeBar": False})
 
@@ -243,7 +252,7 @@ with chart_col2:
         xaxis=dict(title="Session Number", gridcolor="#f0f0f0", tickmode="linear", dtick=1),
         yaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0"),
         legend=dict(bgcolor="#ffffff", bordercolor="#eeeeee", borderwidth=1),
-        margin=dict(l=10, r=10, t=70, b=10), height=400,
+        margin=dict(l=10, r=10, t=70, b=10), height=380,
         hovermode="x unified",
     )
     st.plotly_chart(fig2, use_container_width=True, config={"scrollZoom": False, "displayModeBar": False})
