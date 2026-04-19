@@ -230,7 +230,7 @@ with chart_col1:
         title=dict(text="Average Time by Athlete", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False),
         yaxis=dict(title=""),
-        margin=dict(l=10, r=70, t=70, b=10), height=380,
+        margin=dict(l=10, r=100, t=70, b=10), height=380,
     )
     st.plotly_chart(fig1, use_container_width=True, config={"scrollZoom": False, "displayModeBar": False})
 
