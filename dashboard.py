@@ -130,7 +130,7 @@ CARD = "background:#ffffff;border-radius:16px;padding:28px 32px 20px 32px;box-sh
 st.markdown(f"""
 <div style="{CARD}">
     <div style="font-size:2.3rem;font-weight:700;color:#1a1a2e;letter-spacing:-0.03em;">Ver Vision Training Dashboard</div>
-    <div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Your athletes are logging vision training reps through the Ver app. Monitor who's showing up, how often, and whether their reaction times are improving — the same way you'd track any other training metric.</div>
+    <div style="font-size:0.95rem;color:#1a1a2e;margin-top:8px;opacity:0.5;">Your athletes are logging vision training reps through the Ver app. Monitor who's showing up, how often, and whether their reaction times are improving.</div>
 </div>
 """, unsafe_allow_html=True)
 
