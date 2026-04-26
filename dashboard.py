@@ -303,73 +303,73 @@ for _, row in roster_df.iterrows():
     if reasons:
         nudge_athletes.append({"Athlete": row["Athlete"], "Profile": row["Profile"], "Reasons": reasons})
 
-roster_col, nudge_col = st.columns(2)
+roster_col, nudge_col = None, None
 
-with nudge_col:
-    with st.container(border=True):
-        st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Give \'em a Nudge</p>', unsafe_allow_html=True)
-        st.markdown('<p style="font-size:0.82rem;color:#888;margin-bottom:12px;">These athletes could use a little encouragement to get their reps in.</p>', unsafe_allow_html=True)
-        if not nudge_athletes:
-            st.markdown(f'<p style="color:{TEAL};font-weight:600;">&#10003; Everyone is on track!</p>', unsafe_allow_html=True)
-        else:
-            for i in range(0, len(nudge_athletes), 3):
-                chunk = nudge_athletes[i:i+3]
-                ncols = st.columns(3)
-                for ncol, ath in zip(ncols, chunk):
-                    with ncol:
-                        reasons_html = "".join(
-                            f'<div style="font-size:0.7rem;color:{CORAL};">· {r}</div>'
-                            for r in ath["Reasons"]
-                        )
-                        st.markdown(
-                            f'<div style="background:rgba(255,111,89,0.08);border:1.5px solid rgba(255,111,89,0.3);border-radius:10px;padding:8px 10px;margin-bottom:6px;">'
-                            f'<div style="font-weight:700;font-size:0.82rem;color:#1a1a2e;margin-bottom:1px;">{ath["Athlete"]}</div>'
-                            f'<div style="font-size:0.68rem;color:#888;margin-bottom:4px;">P{ath["Profile"]}</div>'
-                            f'{reasons_html}</div>',
-                            unsafe_allow_html=True
-                        )
-
-with roster_col:
-    with st.container(border=True):
-        st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;">My Roster</p><style>div[data-testid="stVerticalBlockBorderWrapper"]{overflow:hidden!important;}</style>', unsafe_allow_html=True)
-        sorted_roster = roster_df.sort_values("_profile_num")
-        header_style = "font-size:0.72rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
+with st.container(border=True):
+    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:12px;">My Roster</p>', unsafe_allow_html=True)
+    sorted_roster = roster_df.sort_values("_profile_num")
+    header_style = "font-size:0.72rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
+    st.markdown(
+        f'<div style="display:grid;grid-template-columns:4px 1fr 36px 56px 56px 56px 50px;gap:0;border-bottom:1.5px solid #e0e0e0;padding-bottom:8px;margin-bottom:4px;overflow:hidden;">'
+        f'<div></div>'
+        f'<div style="{header_style}">Athlete</div>'
+        f'<div style="{header_style}">Reps</div>'
+        f'<div style="{header_style}">Best</div>'
+        f'<div style="{header_style}">Avg</div>'
+        f'<div style="{header_style}">Worst</div>'
+        f'<div style="{header_style}">Trend</div>'
+        f'</div>',
+        unsafe_allow_html=True
+    )
+    for _, row in sorted_roster.iterrows():
+        is_active = row["_sessions"] > 0
+        bar_color = TEAL if is_active else "#dddddd"
+        opacity = "1" if is_active else "0.45"
+        best = row["Best Time"] if is_active else "—"
+        avg = row["Avg Time"] if is_active else "—"
+        worst = row["Worst Time"] if is_active else "—"
+        trend_str = row["Trend"] if is_active else "—"
+        tt = row["_trend_type"]
+        trend_color = TEAL if tt == "down" else (CORAL if tt == "up" else "#aaaaaa")
+        best_color = "#0a8a6a" if is_active else "#aaaaaa"
         st.markdown(
-            f'<div style="display:grid;grid-template-columns:4px 1fr 36px 56px 56px 56px 50px;gap:0;border-bottom:1.5px solid #e0e0e0;padding-bottom:8px;margin-bottom:4px;overflow:hidden;">'
-            f'<div></div>'
-            f'<div style="{header_style}">Athlete</div>'
-            f'<div style="{header_style}">Reps</div>'
-            f'<div style="{header_style}">Best</div>'
-            f'<div style="{header_style}">Avg</div>'
-            f'<div style="{header_style}">Worst</div>'
-            f'<div style="{header_style}">Trend</div>'
+            f'<div style="display:grid;grid-template-columns:4px 1fr 36px 56px 56px 56px 50px;gap:0;align-items:center;overflow:hidden;padding:6px 0 6px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">'
+            f'<div style="width:3px;height:20px;background:{bar_color};border-radius:2px;"></div>'
+            f'<div style="font-weight:600;font-size:0.83rem;color:#1a1a2e;padding-left:6px;">{row["Athlete"]} <span style="font-weight:400;color:#aaa;font-size:0.73rem;">P{row["Profile"]}</span></div>'
+            f'<div style="font-size:0.83rem;color:#1a1a2e;">{row["Sessions"]}</div>'
+            f'<div style="font-size:0.83rem;font-weight:600;color:{best_color};">{best}</div>'
+            f'<div style="font-size:0.83rem;color:#1a1a2e;">{avg}</div>'
+            f'<div style="font-size:0.83rem;color:#1a1a2e;">{worst}</div>'
+            f'<div style="font-size:0.83rem;font-weight:600;color:{trend_color};">{trend_str}</div>'
             f'</div>',
             unsafe_allow_html=True
         )
-        for _, row in sorted_roster.iterrows():
-            is_active = row["_sessions"] > 0
-            bar_color = TEAL if is_active else "#dddddd"
-            opacity = "1" if is_active else "0.45"
-            best = row["Best Time"] if is_active else "—"
-            avg = row["Avg Time"] if is_active else "—"
-            worst = row["Worst Time"] if is_active else "—"
-            trend_str = row["Trend"] if is_active else "—"
-            tt = row["_trend_type"]
-            trend_color = TEAL if tt == "down" else (CORAL if tt == "up" else "#aaaaaa")
-            best_color = "#0a8a6a" if is_active else "#aaaaaa"
-            st.markdown(
-                f'<div style="display:grid;grid-template-columns:4px 1fr 36px 56px 56px 56px 50px;gap:0;align-items:center;overflow:hidden;padding:6px 0 6px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">'
-                f'<div style="width:3px;height:20px;background:{bar_color};border-radius:2px;"></div>'
-                f'<div style="font-weight:600;font-size:0.83rem;color:#1a1a2e;padding-left:6px;">{row["Athlete"]} <span style="font-weight:400;color:#aaa;font-size:0.73rem;">P{row["Profile"]}</span></div>'
-                f'<div style="font-size:0.83rem;color:#1a1a2e;">{row["Sessions"]}</div>'
-                f'<div style="font-size:0.83rem;font-weight:600;color:{best_color};">{best}</div>'
-                f'<div style="font-size:0.83rem;color:#1a1a2e;">{avg}</div>'
-                f'<div style="font-size:0.83rem;color:#1a1a2e;">{worst}</div>'
-                f'<div style="font-size:0.83rem;font-weight:600;color:{trend_color};">{trend_str}</div>'
-                f'</div>',
-                unsafe_allow_html=True
-            )
-        st.markdown('<p style="font-size:0.72rem;color:#888;margin-top:10px;">↓ faster (good) &nbsp;·&nbsp; ↑ slower</p>', unsafe_allow_html=True)
+    st.markdown('<p style="font-size:0.72rem;color:#888;margin-top:10px;">↓ faster (good) &nbsp;·&nbsp; ↑ slower</p>', unsafe_allow_html=True)
+
+st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+
+with st.container(border=True):
+    st.markdown('<p style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:4px;">Give \'em a Nudge</p>', unsafe_allow_html=True)
+    st.markdown('<p style="font-size:0.82rem;color:#888;margin-bottom:12px;">These athletes could use a little encouragement to get their reps in.</p>', unsafe_allow_html=True)
+    if not nudge_athletes:
+        st.markdown(f'<p style="color:{TEAL};font-weight:600;">&#10003; Everyone is on track!</p>', unsafe_allow_html=True)
+    else:
+        for i in range(0, len(nudge_athletes), 6):
+            chunk = nudge_athletes[i:i+6]
+            ncols = st.columns(6)
+            for ncol, ath in zip(ncols, chunk):
+                with ncol:
+                    reasons_html = "".join(
+                        f'<div style="font-size:0.7rem;color:{CORAL};">· {r}</div>'
+                        for r in ath["Reasons"]
+                    )
+                    st.markdown(
+                        f'<div style="background:rgba(255,111,89,0.08);border:1.5px solid rgba(255,111,89,0.3);border-radius:10px;padding:8px 10px;margin-bottom:6px;">'
+                        f'<div style="font-weight:700;font-size:0.82rem;color:#1a1a2e;margin-bottom:1px;">{ath["Athlete"]}</div>'
+                        f'<div style="font-size:0.68rem;color:#888;margin-bottom:4px;">P{ath["Profile"]}</div>'
+                        f'{reasons_html}</div>',
+                        unsafe_allow_html=True
+                    )
 
 st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
 
