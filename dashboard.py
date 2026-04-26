@@ -85,6 +85,36 @@ h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 [data-testid="stVerticalBlockBorderWrapper"] > div > div {{
     background: #ffffff !important; border-radius: 16px !important;
 }}
+
+/* ── Mobile responsive ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {{
+    /* Stack columns vertically */
+    [data-testid="stHorizontalBlock"] {{
+        flex-direction: column !important;
+    }}
+    [data-testid="stHorizontalBlock"] > div {{
+        width: 100% !important;
+        min-width: 100% !important;
+    }}
+    /* Shrink roster grid for small screens */
+    .roster-grid {{
+        grid-template-columns: 4px 1fr 30px 50px 50px !important;
+    }}
+    /* Shrink block container padding */
+    .block-container {{
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }}
+    /* Shrink header title */
+    .dash-title {{
+        font-size: 1.4rem !important;
+    }}
+    /* Shrink pill padding in training log */
+    span.time-pill {{
+        padding: 2px 6px !important;
+        font-size: 0.75rem !important;
+    }}
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -308,7 +338,6 @@ with roster_col:
             f'<div style="{header_style}">Reps</div>'
             f'<div style="{header_style}">Best</div>'
             f'<div style="{header_style}">Avg</div>'
-            f'<div style="{header_style}">Worst</div>'
             f'<div style="{header_style}">Trend</div>'
             f'</div>',
             unsafe_allow_html=True
@@ -331,7 +360,6 @@ with roster_col:
                 f'<div style="font-size:0.83rem;color:#1a1a2e;">{row["Sessions"]}</div>'
                 f'<div style="font-size:0.83rem;font-weight:600;color:{best_color};">{best}</div>'
                 f'<div style="font-size:0.83rem;color:#1a1a2e;">{avg}</div>'
-                f'<div style="font-size:0.83rem;color:#1a1a2e;">{worst}</div>'
                 f'<div style="font-size:0.83rem;font-weight:600;color:{trend_color};">{trend_str}</div>'
                 f'</div>',
                 unsafe_allow_html=True
