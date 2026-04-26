@@ -88,31 +88,34 @@ h1, h2, h3 {{ color: #1a1a2e !important; font-weight: 700 !important; }}
 
 /* ── Mobile responsive ───────────────────────────────────────────────────── */
 @media (max-width: 768px) {{
-    /* Stack columns vertically */
+    /* Stack all Streamlit columns vertically */
     [data-testid="stHorizontalBlock"] {{
+        flex-wrap: wrap !important;
         flex-direction: column !important;
+        gap: 12px !important;
     }}
-    [data-testid="stHorizontalBlock"] > div {{
+    [data-testid="stHorizontalBlock"] > [data-testid="stVerticalBlock"] {{
         width: 100% !important;
         min-width: 100% !important;
+        flex: 1 1 100% !important;
     }}
-    /* Shrink roster grid for small screens */
-    .roster-grid {{
-        grid-template-columns: 4px 1fr 30px 50px 50px !important;
+    /* Also target column divs directly */
+    div[data-testid="column"] {{
+        width: 100% !important;
+        flex: 1 1 100% !important;
     }}
-    /* Shrink block container padding */
+    /* Tighten container padding */
     .block-container {{
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-top: 40px !important;
     }}
-    /* Shrink header title */
-    .dash-title {{
+    /* Tighten metric cards */
+    [data-testid="metric-container"] {{
+        padding: 12px 14px !important;
+    }}
+    [data-testid="stMetricValue"] {{
         font-size: 1.4rem !important;
-    }}
-    /* Shrink pill padding in training log */
-    span.time-pill {{
-        padding: 2px 6px !important;
-        font-size: 0.75rem !important;
     }}
 }}
 </style>
