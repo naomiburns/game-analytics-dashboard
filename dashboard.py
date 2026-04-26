@@ -220,7 +220,7 @@ with chart_col1:
     fig1.update_layout(
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="DM Sans, sans-serif", color="#1a1a2e"),
-        title=dict(text="Score Breakdown by Athlete", font=dict(size=20, color="#1a1a2e"), x=0, xref="paper"),
+        title=dict(text="Score Breakdown by Athlete", font=dict(size=16, color="#1a1a2e"), x=0, xref="paper"),
         xaxis=dict(title="Time (seconds)", gridcolor="#f0f0f0", zeroline=False,
                    range=[0, active_roster["_avg"].max() * 1.25] if not active_roster.empty else [0,100]),
         yaxis=dict(title=""),
@@ -302,7 +302,7 @@ with roster_col:
         sorted_roster = roster_df.sort_values("_profile_num")
         header_style = "font-size:0.72rem;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;"
         st.markdown(
-            f'<div style="display:grid;grid-template-columns:4px 130px 45px 75px 75px 75px 65px;gap:0;border-bottom:1.5px solid #e0e0e0;padding-bottom:8px;margin-bottom:4px;">'
+            f'<div style="display:grid;grid-template-columns:4px 1fr 40px 60px 60px 60px 55px;gap:0;border-bottom:1.5px solid #e0e0e0;padding-bottom:8px;margin-bottom:4px;">'
             f'<div></div>'
             f'<div style="{header_style}">Athlete</div>'
             f'<div style="{header_style}">Reps</div>'
@@ -325,7 +325,7 @@ with roster_col:
             trend_color = TEAL if tt == "down" else (CORAL if tt == "up" else "#aaaaaa")
             best_color = "#0a8a6a" if is_active else "#aaaaaa"
             st.markdown(
-                f'<div style="display:grid;grid-template-columns:4px 130px 45px 75px 75px 75px 65px;gap:0;align-items:center;padding:6px 0 6px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">'
+                f'<div style="display:grid;grid-template-columns:4px 1fr 40px 60px 60px 60px 55px;gap:0;align-items:center;padding:6px 0 6px 0;border-bottom:0.5px solid #f0f0f0;opacity:{opacity};">'
                 f'<div style="width:3px;height:20px;background:{bar_color};border-radius:2px;"></div>'
                 f'<div style="font-weight:600;font-size:0.83rem;color:#1a1a2e;padding-left:6px;">{row["Athlete"]} <span style="font-weight:400;color:#aaa;font-size:0.73rem;">P{row["Profile"]}</span></div>'
                 f'<div style="font-size:0.83rem;color:#1a1a2e;">{row["Sessions"]}</div>'
