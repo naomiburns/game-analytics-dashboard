@@ -341,6 +341,7 @@ with roster_col:
             f'<div style="{header_style}">Reps</div>'
             f'<div style="{header_style}">Best</div>'
             f'<div style="{header_style}">Avg</div>'
+            f'<div style="{header_style}">Worst</div>'
             f'<div style="{header_style}">Trend</div>'
             f'</div>',
             unsafe_allow_html=True
@@ -363,6 +364,7 @@ with roster_col:
                 f'<div style="font-size:0.83rem;color:#1a1a2e;">{row["Sessions"]}</div>'
                 f'<div style="font-size:0.83rem;font-weight:600;color:{best_color};">{best}</div>'
                 f'<div style="font-size:0.83rem;color:#1a1a2e;">{avg}</div>'
+                f'<div style="font-size:0.83rem;color:#1a1a2e;">{worst}</div>'
                 f'<div style="font-size:0.83rem;font-weight:600;color:{trend_color};">{trend_str}</div>'
                 f'</div>',
                 unsafe_allow_html=True
